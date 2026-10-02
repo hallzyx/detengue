@@ -17,7 +17,7 @@ El documento fuente de verdad es [`docs/PRD.md`](docs/PRD.md).
 | 1 | Esqueleto: onboarding, home, permiso de cámara, CameraX, captura de frame | ✅ |
 | 2 | Inferencia local (TFLite), boxes alineadas. **Sin modelo entrenado aún** (llega en Fase 5) | ✅ |
 | 3 | Reglas, resultados, recomendaciones, reescaneo, comparación antes/después | ✅ |
-| 4 | Room, historial, privacidad, diagnostics | ⏳ |
+| 4 | Room, historial, privacidad, diagnostics, guardas anti-red en CI | ✅ |
 | 5 | Pipeline ML, model card, docs | ⏳ |
 
 ## Compilar
