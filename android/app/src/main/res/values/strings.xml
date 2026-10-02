@@ -28,9 +28,11 @@
     <string name="scan_again">Escanear de nuevo</string>
     <string name="scan_model_loading">Preparando la IA local…</string>
     <string name="scan_no_detections">No identificamos elementos en esta imagen. Revisa manualmente el entorno o intenta otro ángulo.</string>
-    <plurals name="scan_detected">
-        <item quantity="one">Detectamos %d objeto en esta imagen.</item>
-        <item quantity="other">Detectamos %d objetos en esta imagen.</item>
+    <string name="scan_view_results">Ver resultados</string>
+    <string name="scan_nothing_pending">No se observan condiciones de riesgo en esta imagen.</string>
+    <plurals name="scan_found_pending">
+        <item quantity="one">Encontramos %d elemento que vale la pena revisar.</item>
+        <item quantity="other">Encontramos %d elementos que vale la pena revisar.</item>
     </plurals>
 
     <!-- Errores (PRD §46) -->
@@ -52,4 +54,48 @@
     <string name="camera_permission_needed">Detengue necesita acceso a la cámara para realizar la revisión.</string>
     <string name="camera_permission_grant">Permitir cámara</string>
     <string name="camera_permission_settings">Abrir ajustes</string>
+
+    <!-- Condiciones (PRD §16, §32): condiciones VISUALES, nunca diagnóstico (PRD §17) -->
+    <string name="condition_short_safe">Sin riesgo visible</string>
+    <string name="condition_short_review">Revisar</string>
+    <string name="condition_short_risk">Posible acumulación</string>
+    <string name="condition_short_uncertain">No determinado</string>
+    <string name="status_safe">✓ Sin riesgo visible</string>
+    <string name="status_review">⚠ Revisar si contiene agua</string>
+    <string name="status_risk">! Posible acumulación de agua</string>
+    <string name="status_uncertain">? No pude determinarlo. Revisa manualmente</string>
+
+    <!-- Acciones recomendadas, determinísticas y locales (PRD §20) -->
+    <string name="action_check_standing_water">Revisa si contiene agua. Vacíalo, cepíllalo o mantenlo cubierto.</string>
+    <string name="action_empty_and_invert">Vacía el agua y guarda el recipiente boca abajo o cubierto.</string>
+    <string name="action_remove_pot_water">Elimina el agua acumulada y revisa periódicamente.</string>
+    <string name="action_refresh_pet_water">Renueva el agua y limpia el recipiente.</string>
+    <string name="action_keep_tank_covered">Mantenlo correctamente cubierto.</string>
+    <string name="action_protect_tire">Evita que acumule agua y mantenla protegida de la lluvia.</string>
+    <string name="action_manual_review">No pude determinar este objeto con suficiente confianza. Revisa manualmente.</string>
+
+    <!-- Resultados (PRD §19, §21, §33, §34) -->
+    <plurals name="results_found">
+        <item quantity="one">Encontramos %d elemento para revisar</item>
+        <item quantity="other">Encontramos %d elementos para revisar</item>
+    </plurals>
+    <string name="results_none_pending">No se observan elementos pendientes en este escaneo.</string>
+    <string name="results_completed">✓ Revisión completada</string>
+    <string name="results_question">¿Tiene agua acumulada?</string>
+    <string name="answer_yes">Sí</string>
+    <string name="answer_no">No</string>
+    <string name="answer_unsure">No estoy seguro</string>
+    <string name="results_show_recommendation">Ver recomendación</string>
+    <string name="results_hide_recommendation">Ocultar recomendación</string>
+    <string name="results_recheck">Corregí los elementos — volver a revisar</string>
+    <string name="results_finish">Terminar revisión</string>
+    <string name="results_disclaimer">Detengue es una guía visual de prevención. No diagnostica dengue.</string>
+    <string name="comparison_title">Tu revisión</string>
+    <string name="comparison_before">Antes</string>
+    <string name="comparison_after">Ahora</string>
+    <plurals name="comparison_fixed">
+        <item quantity="one">✓ %d elemento corregido</item>
+        <item quantity="other">✓ %d elementos corregidos</item>
+    </plurals>
+    <string name="comparison_message">Buen trabajo. Revisa manualmente cualquier elemento que la cámara no haya podido identificar.</string>
 </resources>

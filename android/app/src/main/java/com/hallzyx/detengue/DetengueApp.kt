@@ -12,19 +12,22 @@ import com.hallzyx.detengue.core.inference.DetectorState
 import com.hallzyx.detengue.core.prefs.AppPrefs
 import com.hallzyx.detengue.feature.home.HomeScreen
 import com.hallzyx.detengue.feature.onboarding.OnboardingScreen
+import com.hallzyx.detengue.feature.results.ResultsScreen
 import com.hallzyx.detengue.feature.scan.ScanScreen
 
 object Routes {
     const val ONBOARDING = "onboarding"
     const val HOME = "home"
     const val SCAN = "scan"
+    const val RESULTS = "results"
 }
 
 @Composable
 fun DetengueApp() {
     val context = LocalContext.current
     val prefs = remember { AppPrefs(context) }
-    val detectorHolder = (context.applicationContext as DetengueApplication).detectorHolder
+    val app = context.applicationContext as DetengueApplication
+    val detectorHolder = app.detectorHolder
     val detectorState by detectorHolder.state.collectAsStateWithLifecycle()
     val navController = rememberNavController()
     val start = if (prefs.onboardingDone) Routes.HOME else Routes.ONBOARDING
@@ -43,11 +46,27 @@ fun DetengueApp() {
         composable(Routes.HOME) {
             HomeScreen(
                 aiReady = detectorState is DetectorState.Ready,
-                onStartScan = { navController.navigate(Routes.SCAN) },
+                onStartScan = {
+                    app.inspectionStore.begin()
+                    navController.navigate(Routes.SCAN)
+                },
             )
         }
         composable(Routes.SCAN) {
-            ScanScreen(onBack = { navController.popBackStack() })
+            ScanScreen(
+                onBack = { navController.popBackStack() },
+                onViewResults = { navController.navigate(Routes.RESULTS) },
+            )
+        }
+        composable(Routes.RESULTS) {
+            ResultsScreen(
+                // Vuelve al escáner en vivo para el reescaneo; la sesión sigue abierta.
+                onRecheck = { navController.popBackStack() },
+                onFinish = {
+                    app.inspectionStore.finish()
+                    navController.popBackStack(Routes.HOME, inclusive = false)
+                },
+            )
         }
     }
 }

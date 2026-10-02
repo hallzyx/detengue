@@ -65,7 +65,10 @@ import com.hallzyx.detengue.core.camera.FrameGrabber
 import com.hallzyx.detengue.core.inference.DetectorState
 import com.hallzyx.detengue.ui.DetectionOverlay
 import com.hallzyx.detengue.ui.OverlayBox
+import com.hallzyx.detengue.ui.color
 import com.hallzyx.detengue.ui.labelRes
+import com.hallzyx.detengue.ui.onColor
+import com.hallzyx.detengue.ui.shortLabelRes
 
 private fun Context.hasCameraPermission() =
     ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
@@ -76,7 +79,7 @@ private fun Context.hasCameraPermission() =
  * Fase 1: captura un frame real y lo descarta. La inferencia llega en la Fase 2.
  */
 @Composable
-fun ScanScreen(onBack: () -> Unit) {
+fun ScanScreen(onBack: () -> Unit, onViewResults: () -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -108,7 +111,7 @@ fun ScanScreen(onBack: () -> Unit) {
             ScanTopBar(onBack = onBack)
 
             if (hasPermission) {
-                ScanContent()
+                ScanContent(onViewResults = onViewResults)
             } else {
                 PermissionNeeded(
                     onGrant = { permissionLauncher.launch(Manifest.permission.CAMERA) },
@@ -140,11 +143,13 @@ private fun ScanTopBar(onBack: () -> Unit) {
 }
 
 @Composable
-private fun ScanContent() {
+private fun ScanContent(onViewResults: () -> Unit) {
     val context = LocalContext.current
     val app = context.applicationContext as DetengueApplication
     val viewModel: ScanViewModel = viewModel(
-        factory = viewModelFactory { initializer { ScanViewModel(app.detectorHolder) } },
+        factory = viewModelFactory {
+            initializer { ScanViewModel(app.detectorHolder, app.inspectionStore) }
+        },
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val detectorState by app.detectorHolder.state.collectAsStateWithLifecycle()
@@ -170,11 +175,13 @@ private fun ScanContent() {
 
             (uiState as? ScanUiState.Result)?.let { result ->
                 val boxes = remember(result) {
-                    result.result.detections.map {
+                    result.assessed.map {
                         OverlayBox(
-                            box = it.box,
-                            label = context.getString(it.objectClass.labelRes()),
-                            color = DetectionNeutral,
+                            box = it.detection.box,
+                            label = context.getString(it.detection.objectClass.labelRes()) + "\n" +
+                                context.getString(it.condition.shortLabelRes()),
+                            color = it.condition.color(),
+                            labelColor = it.condition.onColor(),
                         )
                     }
                 }
@@ -204,10 +211,17 @@ private fun ScanContent() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(12.dp))
+            val result = uiState as? ScanUiState.Result
             Button(
                 enabled = ready && !analyzing,
                 onClick = {
-                    if (uiState is ScanUiState.Result) viewModel.reset() else viewModel.analyze(grabber)
+                    if (result != null) {
+                        // Se suelta la imagen analizada antes de salir: el preview vuelve a estar en vivo.
+                        viewModel.reset()
+                        onViewResults()
+                    } else {
+                        viewModel.analyze(grabber)
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -222,18 +236,24 @@ private fun ScanContent() {
                 } else {
                     Text(
                         text = stringResource(
-                            if (uiState is ScanUiState.Result) R.string.scan_again else R.string.scan_analyze,
+                            if (result != null) R.string.scan_view_results else R.string.scan_analyze,
                         ),
                         style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            }
+            if (result != null) {
+                Spacer(Modifier.height(8.dp))
+                TextButton(onClick = { viewModel.reset() }) {
+                    Text(
+                        text = stringResource(R.string.scan_again),
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }
         }
     }
 }
-
-/** Color neutro de la Fase 2: aún no hay estados SAFE/REVIEW/RISK (llegan con el motor de reglas). */
-private val DetectionNeutral = Color(0xFF0F766E)
 
 @Composable
 private fun statusMessage(detector: DetectorState, ui: ScanUiState): String {
@@ -245,11 +265,11 @@ private fun statusMessage(detector: DetectorState, ui: ScanUiState): String {
             ScanUiState.Idle -> stringResource(R.string.scan_hint)
             ScanUiState.Analyzing -> stringResource(R.string.scan_analyzing)
             is ScanUiState.Result -> {
-                val count = ui.result.detections.size
-                if (count == 0) {
-                    stringResource(R.string.scan_no_detections)
-                } else {
-                    context.resources.getQuantityString(R.plurals.scan_detected, count, count)
+                val pending = ui.assessed.count { it.condition.needsAttention }
+                when {
+                    ui.assessed.isEmpty() -> stringResource(R.string.scan_no_detections)
+                    pending == 0 -> stringResource(R.string.scan_nothing_pending)
+                    else -> context.resources.getQuantityString(R.plurals.scan_found_pending, pending, pending)
                 }
             }
             is ScanUiState.Failed -> when (ui.error) {

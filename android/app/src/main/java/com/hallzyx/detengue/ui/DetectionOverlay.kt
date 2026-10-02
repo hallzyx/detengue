@@ -20,6 +20,7 @@ data class OverlayBox(
     val box: NormalizedBox,
     val label: String,
     val color: Color,
+    val labelColor: Color = Color.White,
 )
 
 /**
@@ -32,7 +33,7 @@ fun DetectionOverlay(
     modifier: Modifier = Modifier,
 ) {
     val textMeasurer = rememberTextMeasurer()
-    val labelStyle = TextStyle(color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+    val labelStyle = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold)
 
     Canvas(modifier = modifier) {
         val strokeWidth = 4.dp.toPx()
@@ -50,7 +51,7 @@ fun DetectionOverlay(
                 style = Stroke(width = strokeWidth),
             )
 
-            val layout = textMeasurer.measure(item.label, labelStyle)
+            val layout = textMeasurer.measure(item.label, labelStyle.copy(color = item.labelColor))
             val labelW = layout.size.width + padding * 2
             val labelH = layout.size.height + padding
             // Etiqueta sobre la caja; si no hay espacio arriba, dentro de ella.

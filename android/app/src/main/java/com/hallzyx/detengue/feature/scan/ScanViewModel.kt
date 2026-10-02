@@ -7,6 +7,8 @@ import com.hallzyx.detengue.core.camera.FrameGrabber
 import com.hallzyx.detengue.core.inference.DetectorHolder
 import com.hallzyx.detengue.core.inference.ModelUnavailableException
 import com.hallzyx.detengue.core.model.DetectionResult
+import com.hallzyx.detengue.core.rules.AssessedDetection
+import com.hallzyx.detengue.core.session.InspectionStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,12 +24,19 @@ sealed interface ScanUiState {
      * Resultado de un análisis. [frame] es la imagen analizada, que se mantiene SOLO en memoria
      * mientras se muestran los resultados (para que las cajas queden alineadas) y nunca se guarda.
      */
-    data class Result(val frame: Bitmap, val result: DetectionResult) : ScanUiState
+    data class Result(
+        val frame: Bitmap,
+        val result: DetectionResult,
+        val assessed: List<AssessedDetection>,
+    ) : ScanUiState
 
     data class Failed(val error: ScanError) : ScanUiState
 }
 
-class ScanViewModel(private val detector: DetectorHolder) : ViewModel() {
+class ScanViewModel(
+    private val detector: DetectorHolder,
+    private val store: InspectionStore,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ScanUiState>(ScanUiState.Idle)
     val uiState: StateFlow<ScanUiState> = _uiState
@@ -43,7 +52,10 @@ class ScanViewModel(private val detector: DetectorHolder) : ViewModel() {
                     ScanUiState.Failed(ScanError.CAPTURE_FAILED)
                 } else {
                     try {
-                        ScanUiState.Result(frame, detector.detect(frame))
+                        val result = detector.detect(frame)
+                        // Se guardan solo metadatos (clase, confianza, estado): nunca la imagen.
+                        val snapshot = store.recordScan(result.detections)
+                        ScanUiState.Result(frame, result, snapshot.assessed)
                     } catch (e: Throwable) {
                         // El frame no llegó a mostrarse: se descarta ya.
                         frame.recycle()
