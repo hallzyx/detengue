@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -43,6 +44,7 @@ android {
             buildConfigField("boolean", "DEMO_MODE", "true")
         }
         release {
+            buildConfigField("boolean", "DEMO_MODE", "false")
             isMinifyEnabled = false
             // APK instalable para la demo del hackathon. Sustituir por una keystore propia para publicar.
             signingConfig = signingConfigs.getByName("debug")
@@ -89,6 +91,11 @@ dependencies {
     implementation(libs.androidx.camera.view)
 
     implementation(libs.kotlinx.coroutines.android)
+
+    // Historial local (PRD §29): solo metadatos, nunca imágenes.
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     // Inferencia local (CPU + XNNPACK). Sin servicios de Google Play: funciona 100 % offline.
     implementation(libs.tensorflow.lite)

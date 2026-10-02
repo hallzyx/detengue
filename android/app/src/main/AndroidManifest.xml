@@ -3,12 +3,18 @@
 
     <!--
       Privacy-first / offline-first (PRD §5, §13, §37):
-      - Único permiso: cámara.
+      - Permisos: cámara y estado de red (solo lectura).
       - Deliberadamente NO se declara android.permission.INTERNET, de modo que la app
         no puede abrir conexiones de red aunque alguien lo intente por error (AC-10).
       - Sin ubicación, almacenamiento, micrófono ni contactos.
     -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!--
+      Solo CONSULTA si hay conexión (para mostrar "Sin conexión · La IA de Detengue sigue disponible").
+      No permite abrir conexiones: eso exigiría INTERNET, que no está declarado.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature
         android:name="android.hardware.camera"
