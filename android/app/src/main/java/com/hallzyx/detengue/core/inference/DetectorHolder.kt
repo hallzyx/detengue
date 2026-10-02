@@ -3,6 +3,7 @@ package com.hallzyx.detengue.core.inference
 import android.content.Context
 import android.os.SystemClock
 import android.util.Log
+import com.hallzyx.detengue.core.diagnostics.Diagnostics
 import com.hallzyx.detengue.core.model.DetectionResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ sealed interface DetectorState {
 }
 
 /** Dueño único del detector: lo carga una vez, en segundo plano, al iniciar la app. */
-class DetectorHolder(private val context: Context) {
+class DetectorHolder(private val context: Context, private val diagnostics: Diagnostics) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val started = AtomicBoolean(false)
     private val _state = MutableStateFlow<DetectorState>(DetectorState.Loading)
@@ -55,7 +56,7 @@ class DetectorHolder(private val context: Context) {
 
     suspend fun detect(frame: Bitmap): DetectionResult {
         val d = detector ?: throw ModelUnavailableException("La IA local no está lista")
-        return d.detect(frame)
+        return d.detect(frame).also { diagnostics.record(it.timings) }
     }
 
     private companion object {

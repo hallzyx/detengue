@@ -25,6 +25,9 @@ object DetectionConfig {
     /** Cajas más pequeñas que esto (fracción del frame) se descartan por ruido. */
     const val MIN_BOX_SIZE = 0.01f
 
+    /** Versión que se registra con cada inspección. Subirla cada vez que cambie el modelo (ver MODEL_CARD). */
+    const val MODEL_VERSION = "detengue-0.1.0"
+
     const val MODEL_ASSET = "detengue_detector_int8.tflite"
     const val LABELS_ASSET = "detengue_labels.txt"
 }
