@@ -1,0 +1,8 @@
+# Entorno de entrenamiento/export (NO es necesario para compilar la app).
+# Para solo correr los tests de ml/tests basta con: numpy
+numpy>=1.26
+pillow>=10
+ultralytics>=8.3        # entrenamiento, validación y export a TFLite
+# El export a TFLite INT8 instala lo que necesita (tensorflow, onnx2tf…) la primera vez.
+# Para verificar el .tflite en el escritorio basta uno de: ai-edge-litert | tflite-runtime | tensorflow
+ai-edge-litert

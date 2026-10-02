@@ -50,6 +50,12 @@ class LetterboxTransformTest {
         assertEquals(0.3f, t.unmapX(96f), eps)
     }
 
+    @Test
+    fun halfwayValuesRoundUp() {
+        // 5 * 0.5 = 2.5 -> 3. Mismo caso que ml/tests/test_postprocess.py: Python y Kotlin deben coincidir.
+        assertEquals(3, LetterboxTransform(srcWidth = 5, srcHeight = 10, dstSize = 5).scaledWidth)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun rejectsInvalidDimensions() {
         LetterboxTransform(0, 100, 320)
