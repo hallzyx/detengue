@@ -19,6 +19,23 @@ android {
 
         // PRD §45: el modo demo nunca falsifica detecciones; solo activa métricas/overlay.
         buildConfigField("boolean", "DEMO_MODE", "false")
+
+        // Solo ABIs reales de teléfono (+ x86_64 para el emulador): recorta el tamaño del APK.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
+    }
+
+    // El modelo vive en android/models/ (PRD §58) y se empaqueta como asset.
+    sourceSets {
+        getByName("main") {
+            assets.srcDirs("../models")
+        }
+    }
+
+    // El .tflite se mapea en memoria directamente desde el APK: no debe comprimirse.
+    androidResources {
+        noCompress += "tflite"
     }
 
     buildTypes {
@@ -54,6 +71,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
 
     implementation(platform(libs.androidx.compose.bom))
@@ -71,6 +89,9 @@ dependencies {
     implementation(libs.androidx.camera.view)
 
     implementation(libs.kotlinx.coroutines.android)
+
+    // Inferencia local (CPU + XNNPACK). Sin servicios de Google Play: funciona 100 % offline.
+    implementation(libs.tensorflow.lite)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

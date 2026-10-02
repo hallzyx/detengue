@@ -1,0 +1,10 @@
+# Clases del detector, en el MISMO orden en que las emite el modelo (índice = número de línea sin comentarios).
+# El entrenamiento en ml/ debe respetar este orden. Un código desconocido se ignora en la app.
+bucket
+container
+plant_pot
+bottle
+tire
+pet_bowl
+drum
+water_tank
