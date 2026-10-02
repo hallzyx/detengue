@@ -2,8 +2,8 @@ package com.hallzyx.detengue.core.inference
 
 import com.hallzyx.detengue.core.config.DetectionConfig
 import com.hallzyx.detengue.core.model.Detection
+import com.hallzyx.detengue.core.model.ModelClass
 import com.hallzyx.detengue.core.model.NormalizedBox
-import com.hallzyx.detengue.core.model.ObjectClass
 
 /**
  * Decodifica la salida de un detector estilo YOLO (Ultralytics) exportado a TFLite y aplica NMS.
@@ -14,13 +14,15 @@ import com.hallzyx.detengue.core.model.ObjectClass
  * Cada ancla es `cx, cy, w, h, score_clase_0 … score_clase_nc-1`. Las coordenadas pueden venir
  * normalizadas (0..1) o en píxeles de la entrada; se detecta automáticamente.
  *
- * [classes] mapea el índice de clase del modelo a [ObjectClass]; un `null` marca una clase que la
- * app ignora (p. ej. una clase de apoyo usada solo en entrenamiento).
+ * [classes] mapea el índice de clase del modelo a [ModelClass] (objeto + estado); un `null` marca
+ * una clase que la app ignora (p. ej. una clase de apoyo usada solo en entrenamiento).
+ * El NMS es por OBJETO, no por clase completa: `bucket:open` y `bucket:water` solapados son el
+ * mismo balde y solo sobrevive el de mayor confianza.
  *
  * Es lógica pura (sin Android) para poder probarla de forma determinista.
  */
 class YoloPostprocessor(
-    private val classes: List<ObjectClass?>,
+    private val classes: List<ModelClass?>,
     private val detectionThreshold: Float = DetectionConfig.DETECTION_THRESHOLD,
     private val nmsThreshold: Float = DetectionConfig.NMS_THRESHOLD,
     private val maxDetections: Int = DetectionConfig.MAX_DETECTIONS,
@@ -28,7 +30,7 @@ class YoloPostprocessor(
     private val minBoxSize: Float = DetectionConfig.MIN_BOX_SIZE,
 ) {
     private class Candidate(
-        val objectClass: ObjectClass,
+        val modelClass: ModelClass,
         val score: Float,
         val cx: Float,
         val cy: Float,
@@ -64,7 +66,7 @@ class YoloPostprocessor(
         val candidates = ArrayList<Candidate>()
         for (a in 0 until anchors) {
             var bestScore = 0f
-            var bestClass: ObjectClass? = null
+            var bestClass: ModelClass? = null
             for (k in classes.indices) {
                 val cls = classes[k] ?: continue
                 val s = value(4 + k, a)
@@ -98,7 +100,7 @@ class YoloPostprocessor(
             val y2 = transform.unmapY((c.cy + c.h / 2f) * toPixels)
             val box = NormalizedBox(x1, y1, x2 - x1, y2 - y1)
             if (box.width < minBoxSize || box.height < minBoxSize) continue
-            boxed += Detection(c.objectClass, c.score, box)
+            boxed += Detection(c.modelClass.objectClass, c.score, box, c.modelClass.state)
         }
 
         // 4) NMS por clase, voraz, ya ordenado por confianza.

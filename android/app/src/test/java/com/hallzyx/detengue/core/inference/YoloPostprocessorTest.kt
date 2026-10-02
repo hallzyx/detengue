@@ -1,5 +1,6 @@
 package com.hallzyx.detengue.core.inference
 
+import com.hallzyx.detengue.core.model.ModelClass
 import com.hallzyx.detengue.core.model.NormalizedBox
 import com.hallzyx.detengue.core.model.ObjectClass
 import org.junit.Assert.assertEquals
@@ -9,7 +10,7 @@ import org.junit.Test
 class YoloPostprocessorTest {
 
     private val eps = 1e-3f
-    private val classes = listOf(ObjectClass.BUCKET, ObjectClass.BOTTLE)
+    private val classes = listOf(ModelClass(ObjectClass.BUCKET), ModelClass(ObjectClass.BOTTLE))
     private val identity = LetterboxTransform(320, 320, 320)
 
     /** Cada ancla: cx, cy, w, h, scoreBucket, scoreBottle. */
@@ -81,7 +82,7 @@ class YoloPostprocessorTest {
 
     @Test
     fun ignoresClassesMappedToNull() {
-        val pp = YoloPostprocessor(listOf(ObjectClass.BUCKET, null))
+        val pp = YoloPostprocessor(listOf(ModelClass(ObjectClass.BUCKET), null))
         val onlyIgnored = arrayOf(anchor(0.5f, 0.5f, 0.4f, 0.4f, 0.1f, 0.95f))
         val result = pp.process(channelFirst(*onlyIgnored), intArrayOf(1, 6, 1), 320, identity)
         assertTrue(result.isEmpty())

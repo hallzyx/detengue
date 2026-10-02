@@ -1,10 +1,18 @@
-# Clases del detector, en el MISMO orden en que las emite el modelo (índice = número de línea sin comentarios).
-# El entrenamiento en ml/ debe respetar este orden. Un código desconocido se ignora en la app.
-bucket
-container
-plant_pot
-bottle
-tire
-pet_bowl
-drum
-water_tank
+# Clases del detector, en el MISMO orden en que las emite el modelo (índice = posición sin contar comentarios).
+# Formato: objeto            -> el modelo no distingue estado (la app pide confirmar con el usuario)
+#          objeto:estado     -> estado visual: open | water | closed | inverted
+# El entrenamiento en ml/ lee ESTE archivo; es la única fuente de verdad de las clases.
+#
+# Primer modelo (PRD §15): balde, recipiente, maceta y botella. El resto de objetos del PRD
+# (llanta, bebedero, cilindro, tanque) ya están soportados por la app y se añaden aquí cuando
+# haya datos para entrenarlos.
+bucket:open
+bucket:water
+bucket:inverted
+container:open
+container:water
+container:inverted
+plant_pot:open
+plant_pot:water
+bottle:closed
+bottle:open

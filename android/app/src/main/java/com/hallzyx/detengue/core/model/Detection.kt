@@ -24,11 +24,15 @@ data class NormalizedBox(
     }
 }
 
-/** Un objeto localizado por el modelo. Aún sin interpretación de riesgo (eso es del motor de reglas). */
+/**
+ * Un objeto localizado por el modelo. [confidence] es la confianza de la clase completa
+ * (objeto + [state]). La interpretación de riesgo es responsabilidad del motor de reglas.
+ */
 data class Detection(
     val objectClass: ObjectClass,
     val confidence: Float,
     val box: NormalizedBox,
+    val state: ObservedState = ObservedState.UNKNOWN,
 )
 
 /** Tiempos por etapa, en milisegundos (PRD §54). */

@@ -6,7 +6,7 @@ import android.os.SystemClock
 import com.hallzyx.detengue.core.config.DetectionConfig
 import com.hallzyx.detengue.core.model.DetectionResult
 import com.hallzyx.detengue.core.model.InferenceTimings
-import com.hallzyx.detengue.core.model.ObjectClass
+import com.hallzyx.detengue.core.model.ModelClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -32,7 +32,7 @@ class ModelUnavailableException(message: String, cause: Throwable? = null) : Exc
  */
 class TfliteObjectDetector private constructor(
     private val interpreter: Interpreter,
-    private val classes: List<ObjectClass?>,
+    private val classes: List<ModelClass?>,
     val modelName: String,
 ) {
     val inputSize: Int
@@ -156,11 +156,11 @@ class TfliteObjectDetector private constructor(
             }
         }
 
-        private fun loadClasses(context: Context): List<ObjectClass?> = try {
+        private fun loadClasses(context: Context): List<ModelClass?> = try {
             context.assets.open(DetectionConfig.LABELS_ASSET).bufferedReader().useLines { lines ->
                 lines.map { it.trim() }
                     .filter { it.isNotEmpty() && !it.startsWith("#") }
-                    .map { ObjectClass.fromCode(it) }
+                    .map { ModelClass.parse(it) }
                     .toList()
             }
         } catch (e: FileNotFoundException) {
