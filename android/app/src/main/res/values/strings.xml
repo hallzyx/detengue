@@ -98,4 +98,35 @@
         <item quantity="other">✓ %d elementos corregidos</item>
     </plurals>
     <string name="comparison_message">Buen trabajo. Revisa manualmente cualquier elemento que la cámara no haya podido identificar.</string>
+
+    <!-- Común -->
+    <string name="common_back">Volver</string>
+
+    <!-- Home: accesos y estado sin conexión (PRD §11, §52) -->
+    <string name="home_history">Mis revisiones</string>
+    <string name="home_privacy">Privacidad</string>
+    <string name="home_diagnostics">Diagnóstico</string>
+    <string name="home_offline_title">Sin conexión</string>
+    <string name="home_offline_ai">La IA de Detengue sigue disponible.</string>
+
+    <!-- Historial (PRD §35) -->
+    <string name="history_title">Mis revisiones</string>
+    <string name="history_empty">Aún no tienes revisiones. Cuando termines una, aparecerá aquí.</string>
+    <string name="history_today">Hoy, %1$s</string>
+    <string name="history_yesterday">Ayer, %1$s</string>
+    <string name="history_pending">%1$d → %2$d pendientes</string>
+    <string name="history_pending_only">%1$d pendientes</string>
+    <string name="history_clear">Borrar historial</string>
+    <string name="history_clear_title">¿Borrar todo el historial?</string>
+    <string name="history_clear_text">Se eliminarán las revisiones guardadas en este teléfono. No se puede deshacer.</string>
+    <string name="history_clear_confirm">Borrar</string>
+    <string name="history_cancel">Cancelar</string>
+
+    <!-- Privacidad (PRD §36) -->
+    <string name="privacy_title">Privacidad</string>
+    <string name="privacy_main">Las imágenes utilizadas durante el análisis se procesan en tu dispositivo. Detengue no necesita enviar tus fotografías a Internet para identificar elementos.</string>
+    <string name="privacy_point_no_photos">No guardamos tus fotos. La imagen existe solo en la memoria del teléfono mientras ves los resultados.</string>
+    <string name="privacy_point_summary">Guardamos solo un resumen de cada revisión: qué tipo de objeto era, su estado y la hora.</string>
+    <string name="privacy_point_no_internet">La app no tiene permiso de Internet, por eso no puede enviar nada.</string>
+    <string name="privacy_point_delete">Puedes borrar tu historial cuando quieras.</string>
 </resources>

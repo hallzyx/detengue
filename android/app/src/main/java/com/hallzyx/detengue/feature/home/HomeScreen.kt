@@ -3,6 +3,7 @@ package com.hallzyx.detengue.feature.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,11 +15,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hallzyx.detengue.R
@@ -26,9 +29,20 @@ import com.hallzyx.detengue.R
 /**
  * Pantalla de inicio (PRD §11).
  * No muestra terminología técnica (INT8, TFLite, NPU…).
+ *
+ * - [aiReady]: solo es `true` cuando el modelo local realmente cargó.
+ * - [online]: estado de conexión del teléfono; sin conexión se resalta que la IA sigue disponible (PRD §52).
+ * - [onOpenDiagnostics]: solo se pasa en builds de demo (PRD §28, §45).
  */
 @Composable
-fun HomeScreen(aiReady: Boolean, onStartScan: () -> Unit) {
+fun HomeScreen(
+    aiReady: Boolean,
+    online: Boolean,
+    onStartScan: () -> Unit,
+    onOpenHistory: () -> Unit,
+    onOpenPrivacy: () -> Unit,
+    onOpenDiagnostics: (() -> Unit)? = null,
+) {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
@@ -74,12 +88,22 @@ fun HomeScreen(aiReady: Boolean, onStartScan: () -> Unit) {
                     )
                 }
                 Spacer(Modifier.height(16.dp))
-                Text(
-                    text = stringResource(if (aiReady) R.string.home_ai_ready else R.string.home_offline),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(24.dp))
+                ConnectionStatus(aiReady = aiReady, online = online)
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(onClick = onOpenHistory) {
+                        Text(stringResource(R.string.home_history), style = MaterialTheme.typography.labelLarge)
+                    }
+                    TextButton(onClick = onOpenPrivacy) {
+                        Text(stringResource(R.string.home_privacy), style = MaterialTheme.typography.labelLarge)
+                    }
+                    if (onOpenDiagnostics != null) {
+                        TextButton(onClick = onOpenDiagnostics) {
+                            Text(stringResource(R.string.home_diagnostics), style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
                 Text(
                     text = stringResource(R.string.home_disclaimer),
                     style = MaterialTheme.typography.bodyMedium,
@@ -87,6 +111,34 @@ fun HomeScreen(aiReady: Boolean, onStartScan: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        }
+    }
+}
+
+/**
+ * Sin conexión + IA lista → "Sin conexión / La IA de Detengue sigue disponible." (PRD §52).
+ * Solo se afirma disponibilidad si el modelo cargó de verdad.
+ */
+@Composable
+private fun ConnectionStatus(aiReady: Boolean, online: Boolean) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        if (!online && aiReady) {
+            Text(
+                text = stringResource(R.string.home_offline_title),
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Text(
+                text = stringResource(R.string.home_offline_ai),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            Text(
+                text = stringResource(if (aiReady) R.string.home_ai_ready else R.string.home_offline),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
