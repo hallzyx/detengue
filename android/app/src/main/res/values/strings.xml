@@ -6,6 +6,7 @@
     <string name="home_tagline">Revisa tu entorno con ayuda de IA.</string>
     <string name="home_cta">Iniciar revisión</string>
     <string name="home_offline">Funciona sin conexión.</string>
+    <string name="home_ai_ready">IA disponible sin conexión ✓</string>
     <string name="home_disclaimer">Herramienta preventiva. No diagnostica dengue ni reemplaza una inspección sanitaria.</string>
 
     <!-- Onboarding (PRD §12) -->
@@ -24,8 +25,28 @@
     <string name="scan_hint">Encuadra el objeto y pulsa Analizar.</string>
     <string name="scan_analyze">Analizar</string>
     <string name="scan_analyzing">Analizando en tu dispositivo…</string>
-    <string name="scan_frame_captured">Imagen capturada (%1$d×%2$d). Se procesa solo en tu dispositivo y no se guarda.</string>
+    <string name="scan_again">Escanear de nuevo</string>
+    <string name="scan_model_loading">Preparando la IA local…</string>
+    <string name="scan_no_detections">No identificamos elementos en esta imagen. Revisa manualmente el entorno o intenta otro ángulo.</string>
+    <plurals name="scan_detected">
+        <item quantity="one">Detectamos %d objeto en esta imagen.</item>
+        <item quantity="other">Detectamos %d objetos en esta imagen.</item>
+    </plurals>
+
+    <!-- Errores (PRD §46) -->
     <string name="scan_capture_error">No se pudo capturar la imagen. Intenta de nuevo.</string>
+    <string name="scan_model_unavailable">No pudimos iniciar la IA local. Reinicia la aplicación.</string>
+    <string name="scan_inference_error">No pudimos analizar la imagen. Intenta de nuevo.</string>
+
+    <!-- Clases (PRD §15) -->
+    <string name="object_bucket">Balde</string>
+    <string name="object_container">Recipiente</string>
+    <string name="object_plant_pot">Maceta</string>
+    <string name="object_bottle">Botella</string>
+    <string name="object_tire">Llanta</string>
+    <string name="object_pet_bowl">Bebedero</string>
+    <string name="object_drum">Cilindro</string>
+    <string name="object_water_tank">Tanque de agua</string>
 
     <!-- Permisos / errores (PRD §46) -->
     <string name="camera_permission_needed">Detengue necesita acceso a la cámara para realizar la revisión.</string>

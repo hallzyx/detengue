@@ -28,7 +28,7 @@ import com.hallzyx.detengue.R
  * No muestra terminología técnica (INT8, TFLite, NPU…).
  */
 @Composable
-fun HomeScreen(onStartScan: () -> Unit) {
+fun HomeScreen(aiReady: Boolean, onStartScan: () -> Unit) {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
@@ -75,7 +75,7 @@ fun HomeScreen(onStartScan: () -> Unit) {
                 }
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = stringResource(R.string.home_offline),
+                    text = stringResource(if (aiReady) R.string.home_ai_ready else R.string.home_offline),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

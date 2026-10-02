@@ -8,6 +8,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,12 +39,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -52,18 +54,18 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.hallzyx.detengue.DetengueApplication
 import com.hallzyx.detengue.R
 import com.hallzyx.detengue.core.camera.CameraPreview
 import com.hallzyx.detengue.core.camera.FrameGrabber
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
-
-private sealed interface ScanStatus {
-    data object Idle : ScanStatus
-    data object Analyzing : ScanStatus
-    data class Captured(val width: Int, val height: Int) : ScanStatus
-    data object CaptureError : ScanStatus
-}
+import com.hallzyx.detengue.core.inference.DetectorState
+import com.hallzyx.detengue.ui.DetectionOverlay
+import com.hallzyx.detengue.ui.OverlayBox
+import com.hallzyx.detengue.ui.labelRes
 
 private fun Context.hasCameraPermission() =
     ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
@@ -139,9 +141,17 @@ private fun ScanTopBar(onBack: () -> Unit) {
 
 @Composable
 private fun ScanContent() {
+    val context = LocalContext.current
+    val app = context.applicationContext as DetengueApplication
+    val viewModel: ScanViewModel = viewModel(
+        factory = viewModelFactory { initializer { ScanViewModel(app.detectorHolder) } },
+    )
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val detectorState by app.detectorHolder.state.collectAsStateWithLifecycle()
     val grabber = remember { FrameGrabber() }
-    val scope = rememberCoroutineScope()
-    var status by remember { mutableStateOf<ScanStatus>(ScanStatus.Idle) }
+
+    val ready = detectorState is DetectorState.Ready
+    val analyzing = uiState is ScanUiState.Analyzing
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -155,39 +165,55 @@ private fun ScanContent() {
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color.Black),
         ) {
+            // El preview sigue enlazado debajo para que "Escanear de nuevo" sea instantáneo.
             CameraPreview(frameGrabber = grabber, modifier = Modifier.fillMaxSize())
+
+            (uiState as? ScanUiState.Result)?.let { result ->
+                val boxes = remember(result) {
+                    result.result.detections.map {
+                        OverlayBox(
+                            box = it.box,
+                            label = context.getString(it.objectClass.labelRes()),
+                            color = DetectionNeutral,
+                        )
+                    }
+                }
+                // Imagen analizada (solo en memoria) + cajas sobre exactamente la misma geometría.
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(result.frame.width / result.frame.height.toFloat())
+                        .align(Alignment.Center),
+                ) {
+                    Image(
+                        bitmap = result.frame.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    DetectionOverlay(boxes = boxes, modifier = Modifier.fillMaxSize())
+                }
+            }
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            StatusText(status)
+            Text(
+                text = statusMessage(detectorState, uiState),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Spacer(Modifier.height(12.dp))
             Button(
-                enabled = status !is ScanStatus.Analyzing,
+                enabled = ready && !analyzing,
                 onClick = {
-                    status = ScanStatus.Analyzing
-                    scope.launch {
-                        status = try {
-                            val frame = grabber.grab()
-                            if (frame == null) {
-                                ScanStatus.CaptureError
-                            } else {
-                                val captured = ScanStatus.Captured(frame.width, frame.height)
-                                // Privacidad: el frame se descarta aquí mismo (PRD §36).
-                                frame.recycle()
-                                captured
-                            }
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (_: Exception) {
-                            ScanStatus.CaptureError
-                        }
-                    }
+                    if (uiState is ScanUiState.Result) viewModel.reset() else viewModel.analyze(grabber)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp),
             ) {
-                if (status is ScanStatus.Analyzing) {
+                if (analyzing) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -195,7 +221,9 @@ private fun ScanContent() {
                     )
                 } else {
                     Text(
-                        text = stringResource(R.string.scan_analyze),
+                        text = stringResource(
+                            if (uiState is ScanUiState.Result) R.string.scan_again else R.string.scan_analyze,
+                        ),
                         style = MaterialTheme.typography.titleLarge,
                     )
                 }
@@ -204,20 +232,33 @@ private fun ScanContent() {
     }
 }
 
+/** Color neutro de la Fase 2: aún no hay estados SAFE/REVIEW/RISK (llegan con el motor de reglas). */
+private val DetectionNeutral = Color(0xFF0F766E)
+
 @Composable
-private fun StatusText(status: ScanStatus) {
-    val text = when (status) {
-        ScanStatus.Idle -> stringResource(R.string.scan_hint)
-        ScanStatus.Analyzing -> stringResource(R.string.scan_analyzing)
-        is ScanStatus.Captured -> stringResource(R.string.scan_frame_captured, status.width, status.height)
-        ScanStatus.CaptureError -> stringResource(R.string.scan_capture_error)
+private fun statusMessage(detector: DetectorState, ui: ScanUiState): String {
+    val context = LocalContext.current
+    return when {
+        detector is DetectorState.Unavailable -> stringResource(R.string.scan_model_unavailable)
+        detector is DetectorState.Loading -> stringResource(R.string.scan_model_loading)
+        else -> when (ui) {
+            ScanUiState.Idle -> stringResource(R.string.scan_hint)
+            ScanUiState.Analyzing -> stringResource(R.string.scan_analyzing)
+            is ScanUiState.Result -> {
+                val count = ui.result.detections.size
+                if (count == 0) {
+                    stringResource(R.string.scan_no_detections)
+                } else {
+                    context.resources.getQuantityString(R.plurals.scan_detected, count, count)
+                }
+            }
+            is ScanUiState.Failed -> when (ui.error) {
+                ScanError.CAPTURE_FAILED -> stringResource(R.string.scan_capture_error)
+                ScanError.MODEL_UNAVAILABLE -> stringResource(R.string.scan_model_unavailable)
+                ScanError.INFERENCE_FAILED -> stringResource(R.string.scan_inference_error)
+            }
+        }
     }
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyLarge,
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
 }
 
 @Composable
