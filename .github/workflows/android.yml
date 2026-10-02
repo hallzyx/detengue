@@ -26,6 +26,10 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Guard - no network code
+        working-directory: .
+        run: scripts/check-no-network-code.sh
+
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
 
@@ -34,6 +38,10 @@ jobs:
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
+
+      - name: Guard - APK declares no INTERNET permission
+        working-directory: .
+        run: scripts/check-permissions.sh android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
