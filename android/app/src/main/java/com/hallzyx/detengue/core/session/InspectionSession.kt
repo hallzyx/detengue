@@ -62,6 +62,15 @@ data class InspectionSession(
 
     fun withScan(snapshot: ScanSnapshot): InspectionSession = copy(scans = scans + snapshot)
 
+    /**
+     * Agrega detecciones al ÚLTIMO escaneo (otra zona barrida) sin tocar las respuestas ya dadas: los índices
+     * existentes no cambian porque lo nuevo va al final. Sin escaneos previos, crea uno con [extra].
+     */
+    fun withExtendedLatestScan(extra: List<Detection>): InspectionSession {
+        val current = latest ?: return withScan(ScanSnapshot(extra))
+        return copy(scans = scans.dropLast(1) + current.copy(detections = current.detections + extra))
+    }
+
     /** Registra la respuesta de la persona sobre un objeto del ÚLTIMO escaneo. */
     fun withAnswer(detectionId: Int, answer: UserAnswer): InspectionSession {
         val current = latest ?: return this

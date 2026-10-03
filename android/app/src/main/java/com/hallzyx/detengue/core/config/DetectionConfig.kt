@@ -25,6 +25,14 @@ object DetectionConfig {
     /** Cajas más pequeñas que esto (fracción del frame) se descartan por ruido. */
     const val MIN_BOX_SIZE = 0.01f
 
+    /** Barrido de zona: cuánto dura, cuántas veces debe verse un objeto para contarlo y cuántos hallazgos se guardan. */
+    const val SWEEP_DURATION_MS = 5_000L
+    const val SWEEP_MIN_FRAMES = 2
+    const val SWEEP_MAX_FINDINGS = 20
+
+    /** IoU mínimo entre fotogramas seguidos para decir que una caja es el mismo objeto (la cámara se mueve). */
+    const val SWEEP_MATCH_IOU = 0.25f
+
     /** Versión que se registra con cada inspección. Subirla cada vez que cambie el modelo (ver MODEL_CARD). */
     const val MODEL_VERSION = "detengue-0.5.0"
 

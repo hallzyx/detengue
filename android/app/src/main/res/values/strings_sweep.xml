@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Barrido de zona (5 s) -->
+    <string name="scan_sweep">Barrer zona (5 s)</string>
+    <string name="scan_sweeping">Barriendo… %1$d s. Mueve el teléfono despacio por la zona.</string>
+    <string name="scan_sweeping_hint">Mueve el teléfono despacio</string>
+    <string name="scan_sweeping_found">Hallazgos: %1$d</string>
+    <string name="scan_sweep_none">No encontré nada que revisar en esta zona.</string>
+    <string name="scan_sweep_view_results">Ver resultados (%1$d)</string>
+    <string name="scan_sweep_another">Barrer otra zona</string>
+</resources>

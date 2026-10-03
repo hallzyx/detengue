@@ -22,6 +22,17 @@ class InspectionStore(private val clock: () -> Long = System::currentTimeMillis)
         return snapshot
     }
 
+    /** Suma hallazgos de otra zona al último escaneo (barrido), conservando las respuestas ya dadas. */
+    fun extendLatestScan(detections: List<Detection>): ScanSnapshot {
+        var result: ScanSnapshot? = null
+        _session.update { current ->
+            val next = (current ?: InspectionSession(startedAtMillis = clock())).withExtendedLatestScan(detections)
+            result = next.latest
+            next
+        }
+        return checkNotNull(result)
+    }
+
     fun answer(detectionId: Int, answer: UserAnswer) {
         _session.update { it?.withAnswer(detectionId, answer) }
     }

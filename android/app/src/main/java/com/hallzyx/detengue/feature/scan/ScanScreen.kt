@@ -12,6 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -63,6 +66,7 @@ import com.hallzyx.detengue.R
 import com.hallzyx.detengue.core.camera.CameraPreview
 import com.hallzyx.detengue.core.camera.FrameGrabber
 import com.hallzyx.detengue.core.inference.DetectorState
+import com.hallzyx.detengue.core.rules.AssessedDetection
 import com.hallzyx.detengue.ui.DetectionOverlay
 import com.hallzyx.detengue.ui.OverlayBox
 import com.hallzyx.detengue.ui.color
@@ -157,6 +161,7 @@ private fun ScanContent(onViewResults: () -> Unit) {
 
     val ready = detectorState is DetectorState.Ready
     val analyzing = uiState is ScanUiState.Analyzing
+    val sweeping = uiState is ScanUiState.Sweeping
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -172,6 +177,61 @@ private fun ScanContent(onViewResults: () -> Unit) {
         ) {
             // El preview sigue enlazado debajo para que "Escanear de nuevo" sea instantáneo.
             CameraPreview(frameGrabber = grabber, modifier = Modifier.fillMaxSize())
+
+            (uiState as? ScanUiState.Sweeping)?.let { sweep ->
+                // Cuenta atrás sobre el preview en vivo: la persona mueve el teléfono mientras tanto.
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color.Black.copy(alpha = 0.55f),
+                    modifier = Modifier.align(Alignment.Center),
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 28.dp, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = sweep.secondsLeft.toString(), style = MaterialTheme.typography.displayLarge, color = Color.White)
+                        Text(text = stringResource(R.string.scan_sweeping_hint), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                        Text(text = stringResource(R.string.scan_sweeping_found, sweep.found), style = MaterialTheme.typography.bodyMedium, color = Color.White)
+                    }
+                }
+            }
+
+            (uiState as? ScanUiState.SweepResult)?.let { sweep ->
+                if (sweep.shots.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(R.string.scan_sweep_none),
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            color = Color.White,
+                            modifier = Modifier.padding(24.dp),
+                        )
+                    }
+                } else {
+                    // Galería de hallazgos: el mejor fotograma de cada objeto, solo en memoria, con su caja y veredicto.
+                    LazyRow(
+                        modifier = Modifier.fillMaxSize().background(Color.Black),
+                        contentPadding = PaddingValues(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        items(sweep.shots) { shot ->
+                            val box = remember(shot) { overlayBoxOf(context, shot.assessed) }
+                            Box(
+                                modifier = Modifier
+                                    .fillParentMaxHeight(0.92f)
+                                    .aspectRatio(shot.frame.width / shot.frame.height.toFloat())
+                                    .clip(RoundedCornerShape(12.dp)),
+                            ) {
+                                Image(
+                                    bitmap = shot.frame.asImageBitmap(),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillBounds,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                                DetectionOverlay(boxes = listOf(box), modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                }
+            }
 
             (uiState as? ScanUiState.Result)?.let { result ->
                 val boxes = remember(result) {
@@ -212,10 +272,11 @@ private fun ScanContent(onViewResults: () -> Unit) {
             )
             Spacer(Modifier.height(12.dp))
             val result = uiState as? ScanUiState.Result
+            val sweepResult = uiState as? ScanUiState.SweepResult
             Button(
-                enabled = ready && !analyzing,
+                enabled = ready && !analyzing && !sweeping,
                 onClick = {
-                    if (result != null) {
+                    if (result != null || sweepResult != null) {
                         // Se suelta la imagen analizada antes de salir: el preview vuelve a estar en vivo.
                         viewModel.reset()
                         onViewResults()
@@ -227,7 +288,7 @@ private fun ScanContent(onViewResults: () -> Unit) {
                     .fillMaxWidth()
                     .height(64.dp),
             ) {
-                if (analyzing) {
+                if (analyzing || sweeping) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -235,9 +296,11 @@ private fun ScanContent(onViewResults: () -> Unit) {
                     )
                 } else {
                     Text(
-                        text = stringResource(
-                            if (result != null) R.string.scan_view_results else R.string.scan_analyze,
-                        ),
+                        text = if (sweepResult != null) {
+                            stringResource(R.string.scan_sweep_view_results, sweepResult.shots.size)
+                        } else {
+                            stringResource(if (result != null) R.string.scan_view_results else R.string.scan_analyze)
+                        },
                         style = MaterialTheme.typography.titleLarge,
                     )
                 }
@@ -250,10 +313,38 @@ private fun ScanContent(onViewResults: () -> Unit) {
                         style = MaterialTheme.typography.labelLarge,
                     )
                 }
+            } else if (sweepResult != null) {
+                Spacer(Modifier.height(8.dp))
+                TextButton(onClick = { viewModel.reset() }) {
+                    Text(
+                        text = stringResource(R.string.scan_sweep_another),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+            } else {
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(
+                    enabled = ready && !analyzing && !sweeping,
+                    onClick = { viewModel.sweep(grabber) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                ) {
+                    Text(text = stringResource(R.string.scan_sweep), style = MaterialTheme.typography.titleMedium)
+                }
             }
         }
     }
 }
+
+/** Caja con etiqueta (objeto + veredicto) y color de una detección ya evaluada. */
+private fun overlayBoxOf(context: Context, assessed: AssessedDetection) = OverlayBox(
+    box = assessed.detection.box,
+    label = context.getString(assessed.detection.objectClass.labelRes()) + "\n" +
+        context.getString(assessed.condition.shortLabelRes()),
+    color = assessed.condition.color(),
+    labelColor = assessed.condition.onColor(),
+)
 
 @Composable
 private fun statusMessage(detector: DetectorState, ui: ScanUiState): String {
@@ -264,6 +355,11 @@ private fun statusMessage(detector: DetectorState, ui: ScanUiState): String {
         else -> when (ui) {
             ScanUiState.Idle -> stringResource(R.string.scan_hint)
             ScanUiState.Analyzing -> stringResource(R.string.scan_analyzing)
+            is ScanUiState.Sweeping -> stringResource(R.string.scan_sweeping, ui.secondsLeft)
+            is ScanUiState.SweepResult -> when {
+                ui.shots.isEmpty() -> stringResource(R.string.scan_sweep_none)
+                else -> context.resources.getQuantityString(R.plurals.scan_found_pending, ui.shots.size, ui.shots.size)
+            }
             is ScanUiState.Result -> {
                 val pending = ui.assessed.count { it.condition.needsAttention }
                 when {
