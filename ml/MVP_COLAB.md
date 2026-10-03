@@ -33,7 +33,7 @@ Reemplaza el paso 2 de arriba por este orden:
 # 1) Silva SIN balde (el balde con estado viene de la web):
 !cd detengue && python -m ml.import_external --source ml/external/silva --name silva --license GPL-3.0 \
    --url https://universe.roboflow.com/luis-augusto-silva-bq4bv/mosquito-suh0p \
-   --map "Bottle=bottle,Tire=tire,Water tanks=water_tank"
+   --map "Water tanks=water_tank"
 # 2) Descarga y autoetiqueta
 !cd detengue && python -m ml.collect_openverse --per-state 120
 !cd detengue && python -m ml.autolabel

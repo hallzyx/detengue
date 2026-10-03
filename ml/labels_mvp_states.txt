@@ -1,10 +1,10 @@
-# Clases v0.2: con estado para balde (imágenes web) + clases sin estado (dataset público de Silva).
+# Clases v0.3: baldes con estado (fotos propias + web) + tanque de agua (dataset público de Silva).
+# Se quitaron `tire` y `bottle`: en una casa casi no hay llantas, y las botellas de Silva miden 4-15 px (vista de dron),
+# inservibles para reconocer una botella real. Volver a añadirlas con fotos propias.
 # Para usarlas:  cp ml/labels_mvp_states.txt android/models/detengue_labels.txt
 # NOTA: al importar Silva con esta lista, NO mapees "Bucket" (sin estado, chocaría con bucket:*):
-#       --map "Bottle=bottle,Tire=tire,Water tanks=water_tank"
+#       --map "Water tanks=water_tank"
 bucket:open
 bucket:water
 bucket:inverted
-bottle
-tire
 water_tank

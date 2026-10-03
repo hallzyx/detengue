@@ -26,7 +26,7 @@ if [[ ! -f ml/external/silva/data.yaml ]]; then python3 -m ml.download_silva; fi
 if [[ ! -f ml/dataset/.silva_done ]]; then
   python3 -m ml.import_external --source ml/external/silva --name silva --license GPL-3.0 \
     --url https://universe.roboflow.com/luis-augusto-silva-bq4bv/mosquito-suh0p \
-    --map "Bottle=bottle,Tire=tire,Water tanks=water_tank"
+    --map "Water tanks=water_tank"
   touch ml/dataset/.silva_done
 fi
 
