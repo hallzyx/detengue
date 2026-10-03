@@ -1,3 +1,5 @@
+> Para correrlo todo en tu PC con GPU, usa `ml/WSL.md` + `ml/run_local.sh`.
+
 # Entrenar el MVP sin fotos propias (Google Colab, GPU gratis)
 
 Fuente usada: dataset público de mosquito de Luis Augusto Silva (Roboflow Universe, ~5.000 imágenes:
@@ -13,8 +15,8 @@ botella, balde, llanta, tanque de agua, piscina, charco). **Revisa su licencia a
    --url https://universe.roboflow.com/luis-augusto-silva-bq4bv/mosquito-suh0p \
    --map "Bottle=bottle,Bucket=bucket,Tire=tire,Water tanks=water_tank"
 !cd detengue && python -m ml.validate_dataset && python -m ml.make_data_yaml
-!cd detengue && python -m ml.train --epochs 60 && python -m ml.evaluate
-!cd detengue && python -m ml.export_tflite   # genera android/models/detengue_detector_int8.tflite
+!cd detengue && python -m ml.train --epochs 60 && python -m ml.evaluate --weights ml/runs/detengue/weights/best.pt
+!cd detengue && python -m ml.export_tflite --weights ml/runs/detengue/weights/best.pt   # genera android/models/detengue_detector_int8.tflite
 ```
 3. Descarga `android/models/detengue_detector_int8.tflite`, cópialo al mismo path del repo, sube `MODEL_VERSION` y rellena `docs/MODEL_CARD.md` con los números de `ml.evaluate`.
 
