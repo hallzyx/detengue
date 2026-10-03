@@ -23,3 +23,10 @@ ml/runs/
 # OS
 .DS_Store
 ml/external/
+
+# Artefactos de entrenamiento locales
+runs/
+weights/
+*.pt
+ml/dataset/data.yaml
+ml/dataset/.*_done
