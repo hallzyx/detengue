@@ -5,7 +5,7 @@ baldes son muy pequeños (ver Limitaciones). Los campos *pendiente* no se han me
 
 | Campo | Valor |
 |---|---|
-| Versión | `detengue-0.3.0` |
+| Versión | `detengue-0.4.0` |
 | Arquitectura | YOLO11n (Ultralytics), un solo detector, ~2,6 M parámetros |
 | Entrenamiento | 30 épocas, batch 16, imgsz 320, GPU RTX 3050 (WSL2); partida desde pesos preentrenados |
 | Exportación | litert-torch (Ultralytics 8.4.172), INT8 estático (pesos+activaciones int8, E/S float32), 3,1 MB; entrada permutada a NHWC (`ml/export_tflite.py`) |
@@ -23,44 +23,53 @@ vista de dron: inservibles para reconocer una botella real).
 
 | Split | Imágenes | `bucket:open` | `bucket:water` | `bucket:inverted` | `water_tank` |
 |---|---|---|---|---|---|
-| train | 864 | 106 | 36 | 30 | 2052 |
+| train | 995 | 130 | 81 | 54 | 2052 |
 | val | 128 | 10 | 5 | 2 | 337 |
 | test | 93 | 16 | 9 | 3 | 164 |
 
-(cajas por clase; incluye 25 imágenes negativas en total). Fuentes:
-- **Fotos propias** (167 en train): baldes y tinas en el suelo de una casa y alrededores, fotografiados por el equipo con un teléfono,
-  más 21 negativos (objetos que no son balde). Estado fijado por carpeta al fotografiar. Cajas propuestas por Grounding DINO y
-  revisadas por el asistente (Claude), no por un experto: de 203 fotos se descartaron 20 por caja o estado erróneos.
-  Split **por ráfaga** (marca de hora) para evitar fugas entre train y test.
+(cajas por clase; 63 imágenes negativas en total: 56 train, 4 val, 3 test). Fuentes:
+- **Fotos propias reales** (167 en train): baldes y tinas en el suelo de una casa y alrededores, con un teléfono, más 21 negativos.
+  Estado fijado por carpeta al fotografiar. Cajas propuestas por Grounding DINO y revisadas por el asistente (Claude), no por un experto
+  (de 203 fotos se descartaron 20). Split por ráfaga. **Todo val y todo test son fotos reales.**
+- **Imágenes SINTÉTICAS (generadas con IA, ChatGPT), solo en train:** 93 con caja (24 abiertas, 24 invertidas, 45 con agua) y 38 negativos (cestos, ollas, sartenes, tazones, macetas, jarras, bacinillas), revisadas una a una.
+  Se descartaron las tinas anchas del lote de negativos porque contradecían las fotos reales (tinas = balde).
+  Son fotorrealistas pero "de catálogo" (objeto centrado y completo); algunas de agua tienen el nivel muy tenue, así que pueden ser etiquetas ruidosas.
+  Prompts y hashes en la carpeta de origen (`manifest.csv`, `prompts.json`); no se versionan aquí.
 - **Imágenes web** (Openverse, CC0/PDM/BY/BY-SA; atribuciones en `ml/external/web/ATTRIBUTION.csv`): 24 fotos de balde.
 - **Silva** (Roboflow Universe, GPL-3.0): solo `water_tank` (vistas de dron y de Brasil).
 
-## Métricas (split de test, `ml.evaluate`, modelo PyTorch `best.pt`)
+## Métricas (split de test real, `ml.evaluate`, modelo PyTorch `best.pt`)
 
-| Métrica | Valor |
-|---|---|
-| Precision | 0.900 |
-| Recall | 0.778 |
-| F1 | 0.835 |
-| mAP@0.5 | 0.882 |
-| mAP@0.5:0.95 | 0.754 |
+| Métrica | v0.4.0 | v0.3.0 (referencia) |
+|---|---|---|
+| Precision | 0.841 | 0.900 |
+| Recall | 0.810 | 0.778 |
+| F1 | 0.825 | 0.835 |
+| mAP@0.5 | 0.919 | 0.882 |
+| mAP@0.5:0.95 | 0.779 | 0.754 |
 
-| Clase | Instancias test | Precision | Recall | F1 | AP@0.5 |
+| Clase | Instancias test | Precision | Recall | F1 | AP@0.5 (v0.3.0) |
 |---|---|---|---|---|---|
-| bucket:open | 16 | 0.711 | 0.938 | 0.809 | 0.968 |
-| bucket:water | 9 | 0.984 | 0.556 | 0.710 | 0.849 |
-| bucket:inverted | 3 | 0.905 | 0.667 | 0.768 | 0.715 |
-| water_tank | 164 | 1.000 | 0.952 | 0.975 | 0.995 |
+| bucket:open | 16 | 0.807 | 1.000 | 0.893 | 0.946 (0.968) |
+| bucket:water | 9 | 0.841 | 0.592 | 0.695 | 0.871 (0.849) |
+| bucket:inverted | 3 | 0.728 | 0.667 | 0.696 | 0.863 (0.715) |
+| water_tank | 164 | 0.989 | 0.982 | 0.986 | 0.994 (0.995) |
 
-Estas cifras son del modelo FP32. **No se evaluó el `.tflite` con `ml.evaluate`.** Comprobación aparte sobre el `.tflite`
-INT8, a nivel de imagen (clase de mayor confianza, umbral 0,4, sin letterbox) con las fotos propias de test:
+Cifras del modelo FP32. **No se evaluó el `.tflite` con `ml.evaluate`.** Comparación aparte de los `.tflite` INT8 v0.3 y v0.4 sobre las
+**mismas 47 fotos reales de val y test** (clase de mayor confianza por imagen, umbral 0,4, sin letterbox):
 
-| Real | Predicción del `.tflite` |
-|---|---|
-| `bucket:inverted` (2 imágenes) | 2 × `bucket:inverted` |
-| `bucket:water` (8 imágenes) | 4 × `bucket:water`, **4 × `bucket:open`** |
-| `bucket:open` (16 imágenes) | 13 × `bucket:open`, 3 × sin detección |
-| Negativos, no son balde (3 imágenes) | **3 de 3 detectadas como balde** (falso positivo) |
+| Foto real | Aciertos v0.3 | Aciertos v0.4 |
+|---|---|---|
+| `bucket:open` (25) | 20 | 24 |
+| `bucket:water` (11) | 7 | 6 (4 salen como `open`) |
+| `bucket:inverted` (4) | 4 | 4 |
+| No son balde (7): falsos positivos | 4 | 4 |
+
+Prueba de humo con `test-nuevo` sintético (40 imágenes; **no mide rendimiento real**, es el mismo dominio que parte del train):
+v0.4 acierta 10/10 abiertas, 6/10 con agua, 10/10 invertidas y da 5/10 falsos positivos en negativos (v0.3: 2, 7, 3 y 8/10).
+
+**Lectura honesta:** v0.4 mejora `bucket:open` y poco más. Las debilidades principales (agua poco profunda confundida con abierto y
+falsos positivos con otros recipientes) **no mejoraron en fotos reales**. Las diferencias de 1 foto no son significativas.
 
 ## Limitaciones conocidas
 
