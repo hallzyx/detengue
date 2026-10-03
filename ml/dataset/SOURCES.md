@@ -1,0 +1,2 @@
+- **silva** — https://universe.roboflow.com/luis-augusto-silva-bq4bv/mosquito-suh0p — licencia: GPL-3.0 — 2977 imágenes, cajas {'tire': 2799, 'bottle': 568, 'water_tank': 2619}
+- **web** — Openverse (CC0/PDM/BY/BY-SA), atribuciones en ml/external/web/ATTRIBUTION.csv — {'train': 19, 'val': 3, 'test': 2}
