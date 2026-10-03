@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Progreso local (gamificación simple; todo se calcula en el teléfono). Separado de strings.xml a propósito. -->
+<resources>
+    <!-- Tarjeta de Inicio -->
+    <string name="gami_empty">Haz tu primera inspección y empieza tu racha semanal.</string>
+    <string name="gami_streak_start">Empieza tu racha</string>
+    <plurals name="gami_streak_title">
+        <item quantity="one">Racha de %d semana</item>
+        <item quantity="other">Racha de %d semanas</item>
+    </plurals>
+    <string name="gami_week_done">Esta semana: revisada</string>
+    <string name="gami_week_pending">Esta semana: pendiente</string>
+    <plurals name="gami_remaining_inspections">
+        <item quantity="one">Te falta %d inspección</item>
+        <item quantity="other">Te faltan %d inspecciones</item>
+    </plurals>
+    <plurals name="gami_remaining_alerts">
+        <item quantity="one">Te falta %d alerta atendida</item>
+        <item quantity="other">Te faltan %d alertas atendidas</item>
+    </plurals>
+    <plurals name="gami_remaining_weeks">
+        <item quantity="one">Te falta %d semana</item>
+        <item quantity="other">Te faltan %d semanas</item>
+    </plurals>
+    <!-- %1$s = "Te faltan 3 alertas atendidas"; %2$s = nombre de la insignia -->
+    <string name="gami_goal_line">%1$s para «%2$s».</string>
+    <string name="gami_all_done">Tienes todas las insignias. Sigue revisando cada semana.</string>
+    <string name="gami_open_achievements">Ver tus logros</string>
+
+    <!-- Pantalla de logros -->
+    <string name="ach_screen_title">Tus logros</string>
+    <string name="ach_stat_inspections">Inspecciones</string>
+    <string name="ach_stat_resolved">Alertas atendidas</string>
+    <string name="ach_stat_streak">Semanas de racha</string>
+    <!-- Reservado para el modo de barrido por zonas: solo se muestra cuando ese dato exista. -->
+    <string name="ach_stat_swept">Zonas revisadas</string>
+    <string name="ach_streak_title">Racha semanal</string>
+    <string name="gami_streak_active">Ya revisaste esta semana.</string>
+    <string name="gami_streak_pending">Revisa esta semana para mantener tu racha.</string>
+    <string name="gami_streak_none">Haz una inspección esta semana para empezarla.</string>
+    <string name="ach_streak_explain">Cuenta las semanas seguidas, de lunes a domingo, con al menos una inspección. Si esta semana aún no revisas, la racha se mantiene hasta el domingo.</string>
+    <string name="ach_resolved_note">Alertas atendidas son las que ya no quedaban pendientes al terminar: porque corregiste el recipiente o porque respondiste sus preguntas.</string>
+    <string name="gami_badges">Insignias: %1$d de %2$d</string>
+    <string name="ach_status_unlocked">Conseguida</string>
+    <string name="ach_status_progress">%1$d de %2$d</string>
+    <string name="ach_locked">Bloqueada</string>
+
+    <!-- Nombres y cómo se consigue cada insignia -->
+    <string name="ach_first_inspection">Primera inspección</string>
+    <string name="ach_first_resolved">Primera alerta atendida</string>
+    <string name="ach_five_resolved">5 alertas atendidas</string>
+    <string name="ach_streak_4_weeks">Racha de 4 semanas</string>
+    <string name="ach_first_inspection_desc">Completa tu primera inspección.</string>
+    <string name="ach_first_resolved_desc">Atiende una alerta durante una inspección.</string>
+    <string name="ach_five_resolved_desc">Atiende 5 alertas en total, en una o varias inspecciones.</string>
+    <string name="ach_streak_4_weeks_desc">Inspecciona al menos una vez por semana durante 4 semanas seguidas.</string>
+
+    <!-- Al terminar una inspección -->
+    <string name="gami_outcome_title">Inspección completada</string>
+    <plurals name="gami_outcome_resolved_label">
+        <item quantity="one">alerta atendida</item>
+        <item quantity="other">alertas atendidas</item>
+    </plurals>
+    <!-- Lo que lee TalkBack en lugar del contador animado -->
+    <plurals name="gami_outcome_resolved_cd">
+        <item quantity="one">%d alerta atendida</item>
+        <item quantity="other">%d alertas atendidas</item>
+    </plurals>
+    <string name="gami_outcome_none">Esta vez no quedaron alertas atendidas. Vacía, cepilla o tapa los recipientes y vuelve a revisar.</string>
+    <plurals name="gami_outcome_new_badges">
+        <item quantity="one">%d insignia nueva</item>
+        <item quantity="other">%d insignias nuevas</item>
+    </plurals>
+    <string name="gami_outcome_ok">Listo</string>
+</resources>
