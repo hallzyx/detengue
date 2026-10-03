@@ -79,6 +79,20 @@ Letterbox y umbrales de la app (detección 0,40; incierto 0,50; riesgo/seguro 0,
 frente a 1). Se eligió priorizar no pasar por alto agua (error más costoso en prevención), con "revisar" humano como red de seguridad.
 Es una decisión de MVP, reversible. Con 47 fotos, diferencias de 1–3 fotos no son concluyentes.
 
+## Experimentos descartados (no están en la app)
+
+Mismas fotos reales (47) y reglas de la app (`ml.simulate_app`). Solo cambia lo indicado respecto a v0.5.0.
+
+| Variante | `water` → RIESGO (11) | Seco o no-balde → RIESGO falso (32) | Decisión |
+|---|---|---|---|
+| v0.4.0 `w8a32` (sin copias degradadas) | 5 | 1 | descartada: encuentra poca agua |
+| **v0.5.0 `w8a32` (en la app)** | **8** | 6 | elegida |
+| v0.6 = v0.5 + 133 sintéticas nuevas (V3: cámara barata, negativos con agua/tierra) | 6 | 6 | descartada: pierde agua y no reduce las falsas alarmas |
+
+V3 mejora el test sintético (todo 10/10 y menos falsos positivos) pero no el real: **los datos sintéticos parecen haber tocado techo**.
+Subir el umbral de riesgo tampoco ayuda: en v0.5.0 las falsas alarmas (confianza 0,71–0,89) se solapan con los aciertos (0,77–0,94).
+Lo que falta son fotos reales de agua poco profunda y de objetos que no son balde.
+
 ## Limitaciones conocidas
 
 - **Falsas alarmas:** 4 de 7 objetos que no son balde (cestos de ropa, ollas) se marcan como RIESGO con confianza alta, y 2 baldes secos también.
