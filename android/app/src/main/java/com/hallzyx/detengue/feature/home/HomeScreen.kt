@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,6 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hallzyx.detengue.R
+import com.hallzyx.detengue.core.gamification.Achievement
+import com.hallzyx.detengue.core.gamification.GamificationStats
+import com.hallzyx.detengue.core.gamification.InspectionOutcome
+import com.hallzyx.detengue.ui.labelRes
 
 /**
  * Pantalla de inicio (PRD §11).
@@ -42,7 +48,11 @@ fun HomeScreen(
     onOpenHistory: () -> Unit,
     onOpenPrivacy: () -> Unit,
     onOpenDiagnostics: (() -> Unit)? = null,
+    stats: GamificationStats? = null,
+    outcome: InspectionOutcome? = null,
+    onDismissOutcome: () -> Unit = {},
 ) {
+    if (outcome != null) OutcomeDialog(outcome, onDismissOutcome)
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
@@ -73,6 +83,10 @@ fun HomeScreen(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                if (stats != null) {
+                    Spacer(Modifier.height(16.dp))
+                    ProgressCard(stats)
+                }
             }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -141,4 +155,91 @@ private fun ConnectionStatus(aiReady: Boolean, online: Boolean) {
             )
         }
     }
+}
+
+/** Progreso local: inspecciones, alertas resueltas, racha semanal e insignias. Nada sale del teléfono. */
+@Composable
+private fun ProgressCard(stats: GamificationStats) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (stats.inspections == 0) {
+                Text(
+                    text = stringResource(R.string.gami_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                return@Column
+            }
+            Text(
+                text = stringResource(R.string.gami_title),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = stringResource(R.string.gami_inspections, stats.inspections),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = stringResource(R.string.gami_resolved, stats.resolvedAlerts),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = stringResource(R.string.gami_streak, stats.streakWeeks),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = stringResource(if (stats.activeThisWeek) R.string.gami_streak_active else R.string.gami_streak_pending),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            val unlocked = stats.achievements
+            Text(
+                text = stringResource(R.string.gami_badges, unlocked.size, Achievement.entries.size),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            unlocked.forEach {
+                Text(
+                    text = "• " + stringResource(it.labelRes()),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+/** Resumen al volver de una inspección: lo logrado y las insignias nuevas. Se muestra una sola vez. */
+@Composable
+private fun OutcomeDialog(outcome: InspectionOutcome, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.gami_outcome_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    if (outcome.resolvedNow > 0) {
+                        stringResource(R.string.gami_outcome_resolved, outcome.resolvedNow)
+                    } else {
+                        stringResource(R.string.gami_outcome_none)
+                    },
+                )
+                if (outcome.streakWeeks > 0) Text(stringResource(R.string.gami_outcome_streak, outcome.streakWeeks))
+                outcome.newAchievements.forEach {
+                    Text(
+                        text = stringResource(R.string.gami_outcome_badge, stringResource(it.labelRes())),
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.gami_outcome_ok)) } },
+    )
 }

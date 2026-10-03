@@ -8,6 +8,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hallzyx.detengue.core.database.InspectionSummary
+import com.hallzyx.detengue.core.gamification.computeStats
 import com.hallzyx.detengue.core.inference.DetectorState
 import com.hallzyx.detengue.core.network.ConnectivityObserver
 import com.hallzyx.detengue.core.prefs.AppPrefs
@@ -18,6 +20,7 @@ import com.hallzyx.detengue.feature.onboarding.OnboardingScreen
 import com.hallzyx.detengue.feature.privacy.PrivacyScreen
 import com.hallzyx.detengue.feature.results.ResultsScreen
 import com.hallzyx.detengue.feature.scan.ScanScreen
+import java.time.ZoneId
 
 object Routes {
     const val ONBOARDING = "onboarding"
@@ -53,6 +56,10 @@ fun DetengueApp() {
             )
         }
         composable(Routes.HOME) {
+            val history: List<InspectionSummary>? by app.inspectionRepository.history.collectAsStateWithLifecycle(initialValue = null)
+            val outcome by app.lastOutcome.collectAsStateWithLifecycle()
+            // Hasta que carga el historial no se muestra la tarjeta (evita un destello de "primera inspección").
+            val stats = history?.let { computeStats(it, System.currentTimeMillis(), ZoneId.systemDefault()) }
             HomeScreen(
                 aiReady = detectorState is DetectorState.Ready,
                 online = online,
@@ -60,6 +67,9 @@ fun DetengueApp() {
                     app.inspectionStore.begin()
                     navController.navigate(Routes.SCAN)
                 },
+                stats = stats,
+                outcome = outcome,
+                onDismissOutcome = app::dismissOutcome,
                 onOpenHistory = { navController.navigate(Routes.HISTORY) },
                 onOpenPrivacy = { navController.navigate(Routes.PRIVACY) },
                 // El diagnóstico es evidencia técnica para la demo, no una pantalla de usuario final.
