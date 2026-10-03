@@ -1,84 +1,93 @@
 # Model card — detengue-detector
 
 **Estado: modelo MVP entrenado (experimental).** Enfocado en baldes (3 estados) y tanques de agua. Los tests de
-baldes son muy pequeños (ver Limitaciones). Los campos *pendiente* no se han medido.
+baldes son muy pequeños y la tasa de falsas alarmas es alta (ver Limitaciones). Los campos *pendiente* no se han medido.
 
 | Campo | Valor |
 |---|---|
-| Versión | `detengue-0.4.0` |
+| Versión | `detengue-0.5.0` |
 | Arquitectura | YOLO11n (Ultralytics), un solo detector, ~2,6 M parámetros |
 | Entrenamiento | 30 épocas, batch 16, imgsz 320, GPU RTX 3050 (WSL2); partida desde pesos preentrenados |
-| Exportación | litert-torch (Ultralytics 8.4.172), INT8 estático (pesos+activaciones int8, E/S float32), 3,1 MB; entrada permutada a NHWC (`ml/export_tflite.py`) |
+| Exportación | litert-torch (Ultralytics 8.4.172), **pesos int8 + activaciones float32** (`w8a32`), 3,0 MB; entrada permutada a NHWC (`ml/export_tflite.py`). El archivo se llama `..._int8.tflite` solo por compatibilidad con la app |
 | Entrada | 320×320 RGB, NHWC `[1,320,320,3]`, float32 0..1, letterbox gris 114 |
 | Salida | `[1,8,2100]` = 4 coordenadas (normalizadas 0..1) + 4 clases, sin NMS embebido |
 | Clases | `bucket:open`, `bucket:water`, `bucket:inverted`, `water_tank` |
-| Runtime | TensorFlow Lite 2.16.1, CPU + XNNPACK, sin Play Services |
+| Runtime | TensorFlow Lite 2.16.1, CPU + XNNPACK, sin Play Services. **No probado en dispositivo con este export** |
 | Verificación del contrato | `ml.verify_tflite`: OK (NHWC, una salida, 4+4 canales, < 15 MB) |
 | Latencia en gama baja | *pendiente* (`ml/benchmark/benchmark_tflite.py` + pantalla de diagnóstico; no medida) |
 
-Clases retiradas respecto a v0.2: `tire` (poco relevante en una casa) y `bottle` (las 568 cajas de Silva miden 4–15 px,
-vista de dron: inservibles para reconocer una botella real).
+## Incidente: el INT8 estático recortaba la confianza (versiones 0.2.0–0.4.0)
+
+Con INT8 estático (pesos + activaciones int8) los scores de clase del `.tflite` quedaban **topados en ~0,50**
+(máx. medido 0,59 en v0.3 y 0,4998 en v0.4), mientras que el mismo modelo en FP32 daba 0,53–0,95 (mediana 0,82). La app muestra
+"no determinado" por debajo de 0,50 y "riesgo/seguro" desde 0,70, así que **no podía dar un veredicto**: lo notó una persona probando el APK.
+Con v0.5.0 el export es `w8a32` (activaciones float32) y la confianza mediana es 0,84. Las métricas de `ml.evaluate` (FP32) no detectan este
+problema; por eso existe `ml.simulate_app`, que reproduce letterbox, umbrales y veredicto de la app sobre el `.tflite`.
 
 ## Datos
 
 | Split | Imágenes | `bucket:open` | `bucket:water` | `bucket:inverted` | `water_tank` |
 |---|---|---|---|---|---|
-| train | 995 | 130 | 81 | 54 | 2052 |
+| train | 1126 | 154 | 126 | 78 | 2052 |
 | val | 128 | 10 | 5 | 2 | 337 |
 | test | 93 | 16 | 9 | 3 | 164 |
 
-(cajas por clase; 63 imágenes negativas en total: 56 train, 4 val, 3 test). Fuentes:
+(cajas por clase; train incluye 94 negativas, val 4 y test 3). Fuentes:
 - **Fotos propias reales** (167 en train): baldes y tinas en el suelo de una casa y alrededores, con un teléfono, más 21 negativos.
   Estado fijado por carpeta al fotografiar. Cajas propuestas por Grounding DINO y revisadas por el asistente (Claude), no por un experto
   (de 203 fotos se descartaron 20). Split por ráfaga. **Todo val y todo test son fotos reales.**
-- **Imágenes SINTÉTICAS (generadas con IA, ChatGPT), solo en train:** 93 con caja (24 abiertas, 24 invertidas, 45 con agua) y 38 negativos (cestos, ollas, sartenes, tazones, macetas, jarras, bacinillas), revisadas una a una.
-  Se descartaron las tinas anchas del lote de negativos porque contradecían las fotos reales (tinas = balde).
-  Son fotorrealistas pero "de catálogo" (objeto centrado y completo); algunas de agua tienen el nivel muy tenue, así que pueden ser etiquetas ruidosas.
-  Prompts y hashes en la carpeta de origen (`manifest.csv`, `prompts.json`); no se versionan aquí.
+- **Imágenes SINTÉTICAS (generadas con IA, ChatGPT), solo en train:** 93 con caja (24 abiertas, 24 invertidas, 45 con agua) y 38 negativos
+  (cestos, ollas, sartenes, tazones, macetas, jarras, bacinillas), revisadas una a una. Se descartaron las tinas anchas del lote de negativos
+  porque contradecían las fotos reales (tinas = balde). Son "de catálogo" (objeto centrado y completo) y algunas de agua tienen el nivel muy
+  tenue, así que pueden ser etiquetas ruidosas. Prompts y hashes en la carpeta de origen; no se versionan aquí.
+- **Copias degradadas de las sintéticas, solo en train** (131, `ml/degrade.py`): desenfoque, ruido, JPEG fuerte, poca luz y contraluz
+  aplicados por código, con las mismas cajas. Simulan una cámara de baja calidad.
 - **Imágenes web** (Openverse, CC0/PDM/BY/BY-SA; atribuciones en `ml/external/web/ATTRIBUTION.csv`): 24 fotos de balde.
 - **Silva** (Roboflow Universe, GPL-3.0): solo `water_tank` (vistas de dron y de Brasil).
 
-## Métricas (split de test real, `ml.evaluate`, modelo PyTorch `best.pt`)
+Clases retiradas desde v0.2: `tire` (poco relevante en una casa) y `bottle` (las 568 cajas de Silva miden 4–15 px, vista de dron).
 
-| Métrica | v0.4.0 | v0.3.0 (referencia) |
+## Métricas (split de test real, `ml.evaluate`, modelo PyTorch FP32)
+
+| Métrica | v0.5.0 | v0.4.0 (referencia) |
 |---|---|---|
-| Precision | 0.841 | 0.900 |
-| Recall | 0.810 | 0.778 |
-| F1 | 0.825 | 0.835 |
-| mAP@0.5 | 0.919 | 0.882 |
-| mAP@0.5:0.95 | 0.779 | 0.754 |
+| Precision | 0.917 | 0.841 |
+| Recall | 0.853 | 0.810 |
+| F1 | 0.884 | 0.825 |
+| mAP@0.5 | 0.907 | 0.919 |
+| mAP@0.5:0.95 | 0.754 | 0.779 |
 
-| Clase | Instancias test | Precision | Recall | F1 | AP@0.5 (v0.3.0) |
+| Clase | Instancias test | Precision | Recall | F1 | AP@0.5 (v0.4.0) |
 |---|---|---|---|---|---|
-| bucket:open | 16 | 0.807 | 1.000 | 0.893 | 0.946 (0.968) |
-| bucket:water | 9 | 0.841 | 0.592 | 0.695 | 0.871 (0.849) |
-| bucket:inverted | 3 | 0.728 | 0.667 | 0.696 | 0.863 (0.715) |
-| water_tank | 164 | 0.989 | 0.982 | 0.986 | 0.994 (0.995) |
+| bucket:open | 16 | 0.868 | 1.000 | 0.929 | 0.985 (0.946) |
+| bucket:water | 9 | 1.000 | 0.775 | 0.873 | 0.926 (0.871) |
+| bucket:inverted | 3 | 0.807 | 0.667 | 0.730 | 0.731 (0.863) |
+| water_tank | 164 | 0.994 | 0.970 | 0.981 | 0.986 (0.994) |
 
-Cifras del modelo FP32. **No se evaluó el `.tflite` con `ml.evaluate`.** Comparación aparte de los `.tflite` INT8 v0.3 y v0.4 sobre las
-**mismas 47 fotos reales de val y test** (clase de mayor confianza por imagen, umbral 0,4, sin letterbox):
+## Comportamiento de la app con el `.tflite` (`ml.simulate_app`, 47 fotos reales de val y test)
 
-| Foto real | Aciertos v0.3 | Aciertos v0.4 |
-|---|---|---|
-| `bucket:open` (25) | 20 | 24 |
-| `bucket:water` (11) | 7 | 6 (4 salen como `open`) |
-| `bucket:inverted` (4) | 4 | 4 |
-| No son balde (7): falsos positivos | 4 | 4 |
+Letterbox y umbrales de la app (detección 0,40; incierto 0,50; riesgo/seguro 0,70). Esto es lo que vería una persona.
 
-Prueba de humo con `test-nuevo` sintético (40 imágenes; **no mide rendimiento real**, es el mismo dominio que parte del train):
-v0.4 acierta 10/10 abiertas, 6/10 con agua, 10/10 invertidas y da 5/10 falsos positivos en negativos (v0.3: 2, 7, 3 y 8/10).
+| Foto real | v0.4.0 INT8 estático (APK anterior) | v0.4.0 `w8a32` | **v0.5.0 `w8a32`** |
+|---|---|---|---|
+| `water` (11) | 10 no determinado, 1 sin detección | 5 RIESGO, 4 revisar, 1 sin det., 1 no det. | **8 RIESGO**, 3 revisar |
+| `open` (25) | 25 no determinado | 25 revisar | 21 revisar, **2 RIESGO falso**, 2 no det. |
+| `inverted` (4) | 4 no determinado | 4 SEGURO | 4 SEGURO |
+| No son balde (7) | 3 no det., 4 sin detección | 1 RIESGO falso, 2 revisar, 4 sin det. | 4 **RIESGO falso**, 3 no det. |
 
-**Lectura honesta:** v0.4 mejora `bucket:open` y poco más. Las debilidades principales (agua poco profunda confundida con abierto y
-falsos positivos con otros recipientes) **no mejoraron en fotos reales**. Las diferencias de 1 foto no son significativas.
+**Por qué v0.5.0 y no v0.4.0:** encuentra más agua (8 de 11 frente a 5), a costa de más falsas alarmas (6 de 32 baldes secos y no-baldes
+frente a 1). Se eligió priorizar no pasar por alto agua (error más costoso en prevención), con "revisar" humano como red de seguridad.
+Es una decisión de MVP, reversible. Con 47 fotos, diferencias de 1–3 fotos no son concluyentes.
 
 ## Limitaciones conocidas
 
-- **Test muy pequeño:** `bucket:inverted` tiene 3 instancias y `bucket:water` 9, de pocas ráfagas (5 a 8 por clase en total, o sea pocos baldes distintos). Los AP de baldes cambian mucho con una foto. No son evidencia sólida.
-- **`bucket:water` se confunde con `bucket:open`:** la mitad de las imágenes con agua del test salen como `open`. Es el error más costoso de la app (un balde con agua no marcado como riesgo). Pasa sobre todo con agua poco profunda y turbia, y con el mismo balde seco con hojas.
-- **Falsos positivos:** los 3 negativos de test se detectaron como balde. El modelo todavía no distingue bien baldes de otros recipientes.
-- **Poca variedad de baldes:** casi todas las fotos propias son tinas y palanganas anchas, y baldes en suelo de cemento. Poca presencia de cubetas altas con asa, baldes en exteriores, de noche o con otros fondos.
-- **`water_tank` viene de vistas de dron (Silva):** un tanque fotografiado de cerca con el teléfono puede comportarse distinto. No se midió.
-- Sin latencia ni consumo medidos en un teléfono. El APK no se ha probado en dispositivo.
+- **Falsas alarmas:** 4 de 7 objetos que no son balde (cestos de ropa, ollas) se marcan como RIESGO con confianza alta, y 2 baldes secos también.
+- **Agua poco profunda:** 3 de 11 fotos con agua siguen sin alerta de riesgo.
+- **Test muy pequeño:** `bucket:inverted` tiene 3 instancias y `bucket:water` 9, de pocas ráfagas (pocos baldes distintos). Sus AP no son evidencia sólida.
+- **Poca variedad de baldes:** casi todas las fotos propias son tinas y palanganas anchas, y baldes en suelo de cemento. Poca presencia de cubetas
+  altas con asa en exteriores reales, de noche o con otros fondos. Gran parte de lo demás es sintético.
+- **`water_tank` viene de vistas de dron (Silva):** un tanque fotografiado de cerca puede comportarse distinto. No se midió.
+- Sin latencia ni consumo medidos en un teléfono, y **el export `w8a32` no se ha probado aún en un dispositivo real**.
 - Licencia: el dataset de Silva es GPL-3.0; revisar su implicación antes de publicar el modelo.
 
 ## Uso previsto y privacidad
