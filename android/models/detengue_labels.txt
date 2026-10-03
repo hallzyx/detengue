@@ -1,13 +1,10 @@
-# Clases del detector, en el MISMO orden en que las emite el modelo (índice = posición sin contar comentarios).
-# Formato: objeto            -> el modelo no distingue estado (la app pide confirmar con el usuario)
-#          objeto:estado     -> estado visual: open | water | closed | inverted
-# El entrenamiento en ml/ lee ESTE archivo; es la única fuente de verdad de las clases.
-#
-# MVP (v0.1): solo clases cubiertas por datasets PÚBLICOS (ver ml/dataset/README.md), sin estado.
-# La app trata "objeto" sin estado como REVISAR y pregunta al usuario si hay agua.
-# Cuando haya fotos propias, reemplazar por variantes con estado (bucket:water, bucket:open, ...)
-# y reentrenar: la app ya las soporta sin cambios de código.
-bucket
+# Clases v0.2: con estado para balde (imágenes web) + clases sin estado (dataset público de Silva).
+# Para usarlas:  cp ml/labels_mvp_states.txt android/models/detengue_labels.txt
+# NOTA: al importar Silva con esta lista, NO mapees "Bucket" (sin estado, chocaría con bucket:*):
+#       --map "Bottle=bottle,Tire=tire,Water tanks=water_tank"
+bucket:open
+bucket:water
+bucket:inverted
 bottle
 tire
 water_tank
