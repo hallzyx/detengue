@@ -1,11 +1,14 @@
-"""Exporta el detector a TFLite INT8 de 320x320 y lo deja en `android/models/` (PRD §25).
+"""Exporta el detector a TFLite de 320x320 y lo deja en `android/models/` (PRD §25).
 
-    python -m ml.export_tflite --weights ml/runs/detengue/weights/best.pt
+    python -m ml.export_tflite --weights ml/runs/detengue/weights/best.pt [--quantize w8a32|8|w8a16|32]
 
-La cuantización INT8 usa imágenes del split `val` de data.yaml como calibración: deben ser
-representativas de la escena real. Tras exportar, ejecuta `ml.verify_tflite` automáticamente.
-
-NOTA: este script NO se ha ejecutado en el entorno donde se escribió (sin dataset ni acceso a PyPI).
+Esquemas (`--quantize`):
+  w8a32 (por defecto)  pesos int8 + activaciones float32. Sin calibración y SIN recortar la confianza.
+  8                    INT8 estático. En las pruebas con este dataset recortó los scores de clase a ~0,50 (el FP32 daba hasta
+                       0,95), así que la app caía siempre en "no determinado". NO usar sin medir los scores.
+  w8a16 / 32           pesos int8 + activaciones int16 / FP32 completo.
+El archivo se llama `detengue_detector_int8.tflite` por compatibilidad con la app, aunque no sea INT8 estático.
+Tras exportar, ejecuta `ml.verify_tflite` automáticamente.
 """
 from __future__ import annotations
 
@@ -67,17 +70,19 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--weights", type=Path, required=True)
     parser.add_argument("--data", type=Path, default=REPO_ROOT / "ml" / "dataset" / "data.yaml")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--quantize", choices=["w8a32", "8", "w8a16", "32"], default="w8a32")
     parser.add_argument("--image", type=Path, default=None, help="foto de prueba para la verificación posterior")
     args = parser.parse_args(argv)
 
     from ultralytics import YOLO
 
     _patch_litert_nhwc()
-    exported = Path(YOLO(str(args.weights)).export(format="tflite", imgsz=IMG_SIZE, int8=True, data=str(args.data), batch=1))
-    candidate = exported if exported.suffix == ".tflite" and "int8" in exported.name else None
-    candidate = candidate or find_int8_tflite(exported if exported.is_dir() else exported.parent)
+    quantize = {"8": 8, "32": None}.get(args.quantize, args.quantize)
+    options = {} if quantize is None else {"quantize": quantize}
+    exported = Path(YOLO(str(args.weights)).export(format="tflite", imgsz=IMG_SIZE, data=str(args.data), batch=1, **options))
+    candidate = exported if exported.suffix == ".tflite" else find_int8_tflite(exported if exported.is_dir() else exported.parent)
     if candidate is None:
-        raise SystemExit(f"No encontré un *_int8.tflite tras exportar (salida: {exported}). Revisa el log de Ultralytics.")
+        raise SystemExit(f"No encontré un .tflite tras exportar (salida: {exported}). Revisa el log de Ultralytics.")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(candidate, args.out)
