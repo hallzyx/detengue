@@ -15,10 +15,10 @@ El documento fuente de verdad es [`docs/PRD.md`](docs/PRD.md).
 | Fase | Contenido | Estado |
 |------|-----------|--------|
 | 1 | Esqueleto: onboarding, home, permiso de cámara, CameraX, captura de frame | ✅ |
-| 2 | Inferencia local (TFLite), boxes alineadas. **Sin modelo entrenado aún** (llega en Fase 5) | ✅ |
+| 2 | Inferencia local (TFLite), boxes alineadas. modelo MVP en Fase 5 | ✅ |
 | 3 | Reglas, resultados, recomendaciones, reescaneo, comparación antes/después | ✅ |
 | 4 | Room, historial, privacidad, diagnostics, guardas anti-red en CI | ✅ |
-| 5 | Pipeline ML, model card, docs | ✅ |
+| 5 | Pipeline ML, model card, docs; modelo MVP entrenado | ✅ |
 
 ## Compilar
 
@@ -49,6 +49,7 @@ docs/      PRD, model card, privacidad, guion de demo
 ```
 
 ## Limitaciones honestas
-- No hay modelo entrenado ni dataset; sin `.tflite` la app lo indica y no analiza.
-- El APK no se compiló en el entorno de desarrollo; la verificación real es el workflow de GitHub Actions.
+- Hay un modelo MVP (`detengue-0.2.0`, INT8, 3 MB) entrenado con dataset público + 24 fotos web. Las clases `bucket:water`
+  y `bucket:inverted` casi no tienen datos y **no son fiables** (ver `docs/MODEL_CARD.md`).
+- El APK compila y pasa tests y lint en GitHub Actions, pero **no se ha probado en un teléfono**: latencia y precisión reales sin medir.
 - Ver `docs/DECISIONS.md`, `docs/MODEL_CARD.md`, `docs/PRIVACY.md`, `docs/DEMO.md`.
