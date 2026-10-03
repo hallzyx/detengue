@@ -14,6 +14,7 @@ import com.hallzyx.detengue.core.inference.DetectorState
 import com.hallzyx.detengue.core.network.ConnectivityObserver
 import com.hallzyx.detengue.core.prefs.AppPrefs
 import com.hallzyx.detengue.feature.diagnostics.DiagnosticsScreen
+import com.hallzyx.detengue.feature.gamification.AchievementsScreen
 import com.hallzyx.detengue.feature.history.HistoryScreen
 import com.hallzyx.detengue.feature.home.HomeScreen
 import com.hallzyx.detengue.feature.onboarding.OnboardingScreen
@@ -30,6 +31,7 @@ object Routes {
     const val HISTORY = "history"
     const val PRIVACY = "privacy"
     const val DIAGNOSTICS = "diagnostics"
+    const val ACHIEVEMENTS = "achievements"
 }
 
 @Composable
@@ -70,6 +72,7 @@ fun DetengueApp() {
                 stats = stats,
                 outcome = outcome,
                 onDismissOutcome = app::dismissOutcome,
+                onOpenAchievements = { navController.navigate(Routes.ACHIEVEMENTS) },
                 onOpenHistory = { navController.navigate(Routes.HISTORY) },
                 onOpenPrivacy = { navController.navigate(Routes.PRIVACY) },
                 // El diagnóstico es evidencia técnica para la demo, no una pantalla de usuario final.
@@ -99,5 +102,12 @@ fun DetengueApp() {
         composable(Routes.HISTORY) { HistoryScreen(onBack = { navController.popBackStack() }) }
         composable(Routes.PRIVACY) { PrivacyScreen(onBack = { navController.popBackStack() }) }
         composable(Routes.DIAGNOSTICS) { DiagnosticsScreen(onBack = { navController.popBackStack() }) }
+        composable(Routes.ACHIEVEMENTS) {
+            val history: List<InspectionSummary>? by app.inspectionRepository.history.collectAsStateWithLifecycle(initialValue = null)
+            AchievementsScreen(
+                stats = history?.let { computeStats(it, System.currentTimeMillis(), ZoneId.systemDefault()) },
+                onBack = { navController.popBackStack() },
+            )
+        }
     }
 }

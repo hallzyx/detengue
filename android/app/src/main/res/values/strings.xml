@@ -129,24 +129,4 @@
     <string name="privacy_point_summary">Guardamos solo un resumen de cada revisión: qué tipo de objeto era, su estado y la hora.</string>
     <string name="privacy_point_no_internet">La app no tiene permiso de Internet, por eso no puede enviar nada.</string>
     <string name="privacy_point_delete">Puedes borrar tu historial cuando quieras.</string>
-
-    <!-- Progreso local (gamificación simple; todo se calcula en el teléfono) -->
-    <string name="gami_title">Tu progreso</string>
-    <string name="gami_empty">Haz tu primera inspección y empieza tu racha semanal.</string>
-    <string name="gami_inspections">Inspecciones: %1$d</string>
-    <string name="gami_resolved">Alertas atendidas: %1$d</string>
-    <string name="gami_streak">Racha semanal: %1$d</string>
-    <string name="gami_streak_active">Ya revisaste esta semana.</string>
-    <string name="gami_streak_pending">Revisa esta semana para mantener tu racha.</string>
-    <string name="gami_badges">Insignias: %1$d de %2$d</string>
-    <string name="gami_outcome_title">Inspección completada</string>
-    <string name="gami_outcome_resolved">Alertas atendidas: %1$d</string>
-    <string name="gami_outcome_none">Esta vez no quedaron alertas atendidas. Vacía, cepilla o tapa los recipientes y vuelve a revisar.</string>
-    <string name="gami_outcome_streak">Racha semanal: %1$d</string>
-    <string name="gami_outcome_badge">Nueva insignia: %1$s</string>
-    <string name="gami_outcome_ok">Listo</string>
-    <string name="ach_first_inspection">Primera inspección</string>
-    <string name="ach_first_resolved">Primera alerta atendida</string>
-    <string name="ach_five_resolved">5 alertas atendidas</string>
-    <string name="ach_streak_4_weeks">Racha de 4 semanas</string>
 </resources>
