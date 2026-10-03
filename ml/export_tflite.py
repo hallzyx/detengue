@@ -25,6 +25,43 @@ def find_int8_tflite(search_dir: Path) -> Path | None:
     return matches[0] if matches else None
 
 
+def _patch_litert_nhwc() -> None:
+    """Ultralytics >= 8.4 exporta TFLite con litert-torch y entrada NCHW; la app exige NHWC [1,S,S,3].
+
+    Envuelve el modelo con una permutación NHWC->NCHW y permuta igual las imágenes de calibración.
+    """
+    import litert_torch
+    import torch
+    from ultralytics.engine.exporter import Exporter
+
+    class _NhwcInput(torch.nn.Module):
+        def __init__(self, model):
+            super().__init__()
+            self.model = model
+
+        def forward(self, x):
+            return self.model(x.permute(0, 3, 1, 2))
+
+    convert = litert_torch.convert
+    litert_torch.convert = lambda model, args, **kw: convert(
+        _NhwcInput(model).eval(), (args[0].permute(0, 2, 3, 1).contiguous(),), **kw
+    )
+
+    get_loader = Exporter.get_int8_calibration_dataloader
+
+    def nhwc_loader(self, *a, **kw):
+        loader = get_loader(self, *a, **kw)
+
+        class _Nhwc:
+            def __iter__(_):
+                for batch in loader:
+                    yield {**batch, "img": batch["img"].permute(0, 2, 3, 1).contiguous()}
+
+        return _Nhwc()
+
+    Exporter.get_int8_calibration_dataloader = nhwc_loader
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--weights", type=Path, required=True)
@@ -35,6 +72,7 @@ def main(argv: list[str] | None = None) -> None:
 
     from ultralytics import YOLO
 
+    _patch_litert_nhwc()
     exported = Path(YOLO(str(args.weights)).export(format="tflite", imgsz=IMG_SIZE, int8=True, data=str(args.data), batch=1))
     candidate = exported if exported.suffix == ".tflite" and "int8" in exported.name else None
     candidate = candidate or find_int8_tflite(exported if exported.is_dir() else exported.parent)

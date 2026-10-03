@@ -6,3 +6,6 @@ ultralytics>=8.3        # entrenamiento, validación y export a TFLite
 # El export a TFLite INT8 instala lo que necesita (tensorflow, onnx2tf…) la primera vez.
 # Para verificar el .tflite en el escritorio basta uno de: ai-edge-litert | tflite-runtime | tensorflow
 ai-edge-litert
+# Con torch 2.5.x (CUDA 12.1) el export falla si pip instala torchao>=0.17 (usa torch.int1, solo en torch>=2.6).
+# torchao 0.11.0 importa bien y el export funcionó (pip avisa de un conflicto con litert-torch; es esperado).
+torchao==0.11.0
