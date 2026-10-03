@@ -63,7 +63,7 @@
     <string name="status_safe">✓ Sin riesgo visible</string>
     <string name="status_review">⚠ Revisar si contiene agua</string>
     <string name="status_risk">! Posible acumulación de agua</string>
-    <string name="status_uncertain">? No pude determinarlo. Revisa manualmente</string>
+    <string name="status_uncertain">\? No pude determinarlo. Revisa manualmente</string>
 
     <!-- Acciones recomendadas, determinísticas y locales (PRD §20) -->
     <string name="action_check_standing_water">Revisa si contiene agua. Vacíalo, cepíllalo o mantenlo cubierto.</string>
