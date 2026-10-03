@@ -1,2 +1,4 @@
 - **silva** — https://universe.roboflow.com/luis-augusto-silva-bq4bv/mosquito-suh0p — licencia: GPL-3.0 — 2977 imágenes, cajas {'tire': 2799, 'bottle': 568, 'water_tank': 2619}
 - **web** — Openverse (CC0/PDM/BY/BY-SA), atribuciones en ml/external/web/ATTRIBUTION.csv — {'train': 19, 'val': 3, 'test': 2}
+- **mis_fotos** — fotos propias del equipo, split por ráfaga (gap 30s) — {'bucket_inverted': {'train': 27, 'val': 2, 'test': 2}, 'bucket_open': {'train': 93, 'val': 9, 'test': 16}, 'bucket_water': {'train': 33, 'val': 3, 'test': 8}, 'negativos': {'train': 14, 'val': 4, 'test': 3}}
+- **silva** — https://universe.roboflow.com/luis-augusto-silva-bq4bv/mosquito-suh0p — licencia: GPL-3.0 — 847 imágenes, cajas {'water_tank': 2553}

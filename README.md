@@ -49,7 +49,8 @@ docs/      PRD, model card, privacidad, guion de demo
 ```
 
 ## Limitaciones honestas
-- Hay un modelo MVP (`detengue-0.2.0`, INT8, 3 MB) entrenado con dataset público + 24 fotos web. Las clases `bucket:water`
-  y `bucket:inverted` casi no tienen datos y **no son fiables** (ver `docs/MODEL_CARD.md`).
+- Hay un modelo MVP (`detengue-0.3.0`, INT8, 3 MB) enfocado en baldes (`open`/`water`/`inverted`) y tanques de agua, entrenado con
+  fotos propias, web y el dataset público de Silva. Con pocos baldes distintos: confunde a menudo balde con agua y balde abierto, y da
+  falsos positivos con otros recipientes (ver `docs/MODEL_CARD.md`).
 - El APK compila y pasa tests y lint en GitHub Actions, pero **no se ha probado en un teléfono**: latencia y precisión reales sin medir.
 - Ver `docs/DECISIONS.md`, `docs/MODEL_CARD.md`, `docs/PRIVACY.md`, `docs/DEMO.md`.
