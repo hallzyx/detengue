@@ -51,6 +51,6 @@ docs/      PRD, model card, privacidad, guion de demo
 ## Limitaciones honestas
 - Hay un modelo MVP (`detengue-0.5.0`, pesos int8 + activaciones float32, 3 MB) enfocado en baldes (`open`/`water`/`inverted`) y tanques de agua, entrenado con
   fotos propias, imágenes web, imágenes sintéticas (IA, solo en train) y el dataset público de Silva. Con pocos baldes distintos: confunde a menudo balde con agua y balde abierto, y da
-  falsos positivos con otros recipientes (ver `docs/MODEL_CARD.md`). El export `w8a32` no se ha probado aún en un teléfono.
-- El APK compila y pasa tests y lint en GitHub Actions, pero **no se ha probado en un teléfono**: latencia y precisión reales sin medir.
+  falsos positivos con otros recipientes (ver `docs/MODEL_CARD.md`). Probado a mano en un teléfono (carga y da veredictos); sin latencia ni tabla de aciertos medidos.
+- El APK compila y pasa tests y lint en GitHub Actions, pero **solo se ha probado a mano en un teléfono**: latencia y precisión reales sin medir.
 - Ver `docs/DECISIONS.md`, `docs/MODEL_CARD.md`, `docs/PRIVACY.md`, `docs/DEMO.md`.

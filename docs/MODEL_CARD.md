@@ -12,7 +12,7 @@ baldes son muy pequeños y la tasa de falsas alarmas es alta (ver Limitaciones).
 | Entrada | 320×320 RGB, NHWC `[1,320,320,3]`, float32 0..1, letterbox gris 114 |
 | Salida | `[1,8,2100]` = 4 coordenadas (normalizadas 0..1) + 4 clases, sin NMS embebido |
 | Clases | `bucket:open`, `bucket:water`, `bucket:inverted`, `water_tank` |
-| Runtime | TensorFlow Lite 2.16.1, CPU + XNNPACK, sin Play Services. **No probado en dispositivo con este export** |
+| Runtime | TensorFlow Lite 2.16.1, CPU + XNNPACK, sin Play Services. Probado a mano en un teléfono (ver Limitaciones) |
 | Verificación del contrato | `ml.verify_tflite`: OK (NHWC, una salida, 4+4 canales, < 15 MB) |
 | Latencia en gama baja | *pendiente* (`ml/benchmark/benchmark_tflite.py` + pantalla de diagnóstico; no medida) |
 
@@ -101,7 +101,8 @@ Lo que falta son fotos reales de agua poco profunda y de objetos que no son bald
 - **Poca variedad de baldes:** casi todas las fotos propias son tinas y palanganas anchas, y baldes en suelo de cemento. Poca presencia de cubetas
   altas con asa en exteriores reales, de noche o con otros fondos. Gran parte de lo demás es sintético.
 - **`water_tank` viene de vistas de dron (Silva):** un tanque fotografiado de cerca puede comportarse distinto. No se midió.
-- Sin latencia ni consumo medidos en un teléfono, y **el export `w8a32` no se ha probado aún en un dispositivo real**.
+- **Prueba en dispositivo:** una persona instaló la APK v0.5.0 en su teléfono (modelo no indicado), el modelo cargó y analizó, y dio veredictos
+  de revisión y de peligro "dentro de lo que cabe". Es una prueba informal: **sin tabla de aciertos, sin latencia ni consumo medidos**.
 - Licencia: el dataset de Silva es GPL-3.0; revisar su implicación antes de publicar el modelo.
 
 ## Uso previsto y privacidad
