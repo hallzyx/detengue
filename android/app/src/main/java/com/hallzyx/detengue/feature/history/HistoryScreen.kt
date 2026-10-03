@@ -20,7 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -46,9 +46,7 @@ import java.time.format.DateTimeFormatter
 fun HistoryScreen(onBack: () -> Unit) {
     val repository = (LocalContext.current.applicationContext as DetengueApplication).inspectionRepository
     val scope = rememberCoroutineScope()
-    val history by produceState<List<InspectionSummary>?>(initialValue = null, repository) {
-        repository.history.collect { value = it }
-    }
+    val history: List<InspectionSummary>? by repository.history.collectAsState(initial = null)
     var confirmClear by remember { mutableStateOf(false) }
     val now = remember { System.currentTimeMillis() }
 
