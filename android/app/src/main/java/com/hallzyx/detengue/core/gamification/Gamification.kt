@@ -8,8 +8,12 @@ import java.time.ZoneId
 /**
  * Gamificación local y simple. Todo se calcula del historial que ya existe: no hay red, ni fotos, ni tablas nuevas.
  *
- * Premia ACTUAR, no encontrar riesgo: una alerta cuenta como resuelta solo si el reescaneo la hizo bajar
- * (pendientes iniciales menos finales), no por pulsar "No" en la pregunta.
+ * Premia ATENDER las alertas, no encontrar riesgo. "Alertas atendidas" = pendientes iniciales (según la IA) menos
+ * pendientes finales (después del reescaneo Y de las respuestas de la persona).
+ *
+ * LIMITACIÓN CONOCIDA: como el conteo final incluye las respuestas, responder "No" a una alerta también la cuenta
+ * como atendida, aunque no se haya hecho nada. Medir solo el efecto del reescaneo exigiría guardar un dato nuevo en Room.
+ * Aceptable para un demo; no usar como métrica real de impacto.
  */
 data class GamificationStats(
     val inspections: Int,
