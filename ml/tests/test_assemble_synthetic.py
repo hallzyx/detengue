@@ -32,6 +32,20 @@ class AssembleSyntheticTest(unittest.TestCase):
             assemble(t / "lab", t / "neg", t / "ds")
             self.assertEqual(len(list((t / "ds" / "images" / "train").glob("syn_*"))), 1)
 
+    def test_degraded_optional(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = Path(tmp)
+            (t / "deg" / "bucket_open").mkdir(parents=True)
+            (t / "deg" / "negativos").mkdir()
+            (t / "deg" / "bucket_open" / "a_deg.jpg").write_bytes(b"x")
+            (t / "deg" / "bucket_open" / "a_deg.txt").write_text("0 0.5 0.5 0.2 0.2\n")
+            (t / "deg" / "negativos" / "n_deg.jpg").write_bytes(b"x")
+            sin = assemble(t / "lab", t / "neg", t / "ds")
+            self.assertNotIn("degradadas_con_caja", sin)
+            con = assemble(t / "lab", t / "neg", t / "ds", t / "deg")
+            self.assertEqual((con["degradadas_con_caja"], con["degradadas_negativas"]), (1, 1))
+            self.assertEqual((t / "ds" / "labels" / "train" / "syn_n_deg.txt").read_text(), "")
+
 
 if __name__ == "__main__":
     unittest.main()
