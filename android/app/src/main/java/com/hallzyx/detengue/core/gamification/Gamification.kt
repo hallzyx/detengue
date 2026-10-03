@@ -21,6 +21,11 @@ data class GamificationStats(
     /** Semanas seguidas (lunes a domingo) con al menos una inspección completada. */
     val streakWeeks: Int,
     val activeThisWeek: Boolean,
+    /**
+     * Reservado para el futuro modo de barrido por zonas. `null` = el dato todavía no existe (no se guarda ni se
+     * calcula hoy); la UI solo lo muestra cuando deja de ser `null`. Ninguna insignia depende de él.
+     */
+    val sweptZones: Int? = null,
 ) {
     val achievements: Set<Achievement> get() = Achievement.entries.filter { it.isUnlocked(this) }.toSet()
 
@@ -29,22 +34,44 @@ data class GamificationStats(
     }
 }
 
-enum class Achievement(private val unlocked: (GamificationStats) -> Boolean) {
-    FIRST_INSPECTION({ it.inspections >= 1 }),
-    FIRST_RESOLVED({ it.resolvedAlerts >= 1 }),
-    FIVE_RESOLVED({ it.resolvedAlerts >= 5 }),
-    STREAK_4_WEEKS({ it.streakWeeks >= 4 }),
+/** Qué cifra de [GamificationStats] mide cada insignia; permite mostrar "te falta X" sin duplicar reglas. */
+enum class GoalMetric {
+    INSPECTIONS,
+    RESOLVED_ALERTS,
+    STREAK_WEEKS,
     ;
 
-    fun isUnlocked(stats: GamificationStats): Boolean = unlocked(stats)
+    fun valueIn(stats: GamificationStats): Int = when (this) {
+        INSPECTIONS -> stats.inspections
+        RESOLVED_ALERTS -> stats.resolvedAlerts
+        STREAK_WEEKS -> stats.streakWeeks
+    }
 }
 
-/** Qué se ganó al terminar una inspección (se muestra una sola vez al volver al inicio). */
+enum class Achievement(val metric: GoalMetric, val target: Int) {
+    FIRST_INSPECTION(GoalMetric.INSPECTIONS, 1),
+    FIRST_RESOLVED(GoalMetric.RESOLVED_ALERTS, 1),
+    FIVE_RESOLVED(GoalMetric.RESOLVED_ALERTS, 5),
+    STREAK_4_WEEKS(GoalMetric.STREAK_WEEKS, 4),
+    ;
+
+    fun isUnlocked(stats: GamificationStats): Boolean = metric.valueIn(stats) >= target
+}
+
+/**
+ * Qué se ganó al terminar una inspección (se muestra una sola vez al volver al inicio).
+ * Lleva las estadísticas de después para que la celebración muestre la racha y la siguiente meta sin recalcular.
+ */
 data class InspectionOutcome(
     val resolvedNow: Int,
     val newAchievements: List<Achievement>,
-    val streakWeeks: Int,
-)
+    val stats: GamificationStats,
+) {
+    val streakWeeks: Int get() = stats.streakWeeks
+}
+
+fun inspectionOutcome(before: GamificationStats, after: GamificationStats, resolvedNow: Int): InspectionOutcome =
+    InspectionOutcome(resolvedNow.coerceAtLeast(0), newAchievements(before, after), after)
 
 /**
  * La racha NO se rompe hasta que pasa una semana entera sin inspección: si esta semana aún no revisaste pero la

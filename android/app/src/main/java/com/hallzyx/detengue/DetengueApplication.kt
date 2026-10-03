@@ -7,7 +7,7 @@ import com.hallzyx.detengue.core.database.InspectionRepository
 import com.hallzyx.detengue.core.diagnostics.Diagnostics
 import com.hallzyx.detengue.core.gamification.InspectionOutcome
 import com.hallzyx.detengue.core.gamification.computeStats
-import com.hallzyx.detengue.core.gamification.newAchievements
+import com.hallzyx.detengue.core.gamification.inspectionOutcome
 import com.hallzyx.detengue.core.inference.DetectorHolder
 import com.hallzyx.detengue.core.session.InspectionStore
 import com.hallzyx.detengue.core.session.toRecord
@@ -65,10 +65,10 @@ class DetengueApplication : Application() {
             val before = computeStats(inspectionRepository.history.first(), System.currentTimeMillis(), zone)
             inspectionRepository.save(record)
             val after = computeStats(inspectionRepository.history.first(), System.currentTimeMillis(), zone)
-            _lastOutcome.value = InspectionOutcome(
-                resolvedNow = (record.initialReviewCount - (record.finalReviewCount ?: record.initialReviewCount)).coerceAtLeast(0),
-                newAchievements = newAchievements(before, after),
-                streakWeeks = after.streakWeeks,
+            _lastOutcome.value = inspectionOutcome(
+                before = before,
+                after = after,
+                resolvedNow = record.initialReviewCount - (record.finalReviewCount ?: record.initialReviewCount),
             )
         }
     }

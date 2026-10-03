@@ -103,4 +103,36 @@ class GamificationTest {
         assertEquals(listOf(Achievement.FIRST_RESOLVED), newAchievements(before, after))
         assertTrue(newAchievements(after, after).isEmpty())
     }
+
+    @Test
+    fun achievementsAreUnlockedExactlyAtTheirTarget() {
+        for (a in Achievement.entries) {
+            val below = statsWith(a.metric, a.target - 1)
+            val at = statsWith(a.metric, a.target)
+            assertFalse(a.isUnlocked(below))
+            assertTrue(a.isUnlocked(at))
+        }
+    }
+
+    @Test
+    fun outcomeCarriesStatsAfterAndNewBadges() {
+        val before = GamificationStats(0, 0, 0, false)
+        val after = GamificationStats(1, 2, 1, true)
+        val outcome = inspectionOutcome(before, after, resolvedNow = 2)
+        assertEquals(2, outcome.resolvedNow)
+        assertEquals(1, outcome.streakWeeks)
+        assertEquals(after, outcome.stats)
+        assertEquals(listOf(Achievement.FIRST_INSPECTION, Achievement.FIRST_RESOLVED), outcome.newAchievements)
+    }
+
+    @Test
+    fun outcomeNeverReportsNegativeResolved() {
+        assertEquals(0, inspectionOutcome(GamificationStats.EMPTY, GamificationStats.EMPTY, resolvedNow = -3).resolvedNow)
+    }
+
+    private fun statsWith(metric: GoalMetric, value: Int) = when (metric) {
+        GoalMetric.INSPECTIONS -> GamificationStats(value, 0, 0, false)
+        GoalMetric.RESOLVED_ALERTS -> GamificationStats(0, value, 0, false)
+        GoalMetric.STREAK_WEEKS -> GamificationStats(0, 0, value, false)
+    }
 }
