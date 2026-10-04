@@ -1,0 +1,4 @@
+frames/
+frames_test/
+*.log
+chk_*.png

@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Detengue — intro</title>
+<style>
+  :root{
+    --teal:#0F766E; --teal-dark:#5EEAD4; --teal-cont:#CCFBF1; --teal-cont-dark:#0B4F4A;
+    --bg-l:#F7FAF9; --ink-l:#10201E; --muted-l:#3F4F4C; --var-l:#E2ECEA;
+    --bg-d:#0E1514; --ink-d:#E2ECEA; --muted-d:#BFCDCA; --var-d:#26332F; --card-d:#16201E;
+    --safe:#2E7D32; --review:#F59E0B; --risk:#C62828; --risk-soft:#EF7B7B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:#000;font-family:'Inter','Roboto',sans-serif}
+  #stage{position:relative;width:1920px;height:1080px;overflow:hidden}
+  .scene{position:absolute;inset:0;display:none}
+  .dark{background:var(--bg-d);color:var(--ink-d)}
+  .light{background:var(--bg-l);color:var(--ink-l)}
+  .abs{position:absolute}
+  .t{position:absolute;left:0;right:0;text-align:center;font-weight:800;letter-spacing:-0.02em;opacity:0}
+  svg{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+  .card{position:absolute;border-radius:32px;opacity:0}
+  .card-d{background:var(--card-d);border:2px solid var(--var-d)}
+  .card-l{background:#fff;border:2px solid var(--var-l);box-shadow:0 10px 30px rgba(15,118,110,.08)}
+  .num{font-weight:800;letter-spacing:-0.04em;line-height:1;font-variant-numeric:tabular-nums}
+  .src{position:absolute;left:0;right:0;bottom:48px;text-align:center;font-size:26px;color:var(--muted-d);opacity:0}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1. gota y balde -->
+  <section class="scene dark" id="s1">
+    <svg id="s1svg" viewBox="0 0 1920 1080"></svg>
+    <div class="t" id="s1a" style="top:880px;font-size:84px">Un balde con agua quieta</div>
+    <div class="t" id="s1b" style="top:880px;font-size:84px;color:var(--review)">puede ser un criadero.</div>
+  </section>
+
+  <!-- 2. mosquito y recipientes -->
+  <section class="scene dark" id="s2">
+    <div class="t" id="s2a" style="top:110px;font-size:66px;padding:0 120px">El dengue lo transmite el mosquito <span style="color:var(--review)">Aedes aegypti</span>.</div>
+    <div class="t" id="s2b" style="top:215px;font-size:50px;font-weight:600;color:var(--muted-d);padding:0 160px;letter-spacing:-0.01em">Se reproduce en <span style="color:var(--teal-dark)">agua acumulada</span>, dentro y alrededor de la casa.</div>
+    <svg id="s2svg" viewBox="0 0 1920 1080"></svg>
+  </section>
+
+  <!-- 3. dato y por qué importa -->
+  <section class="scene dark" id="s3">
+    <div class="abs" id="s3stats" style="left:0;top:0;width:1920px;height:1080px;opacity:0">
+      <div class="abs" style="left:170px;top:120px;width:960px">
+        <div class="num" id="n1" style="font-size:230px;color:var(--review)">0</div>
+        <div style="font-size:48px;font-weight:600;margin-top:10px;color:var(--ink-d)">casos de dengue en Perú en 2026</div>
+      </div>
+      <div class="abs" style="left:1230px;top:120px;width:560px">
+        <div class="num" id="n2" style="font-size:230px;color:var(--risk-soft)">0</div>
+        <div style="font-size:48px;font-weight:600;margin-top:10px;color:var(--ink-d)">fallecidos</div>
+      </div>
+      <div class="abs" id="pill" style="left:170px;top:530px;opacity:0;background:var(--review);color:#1b1200;border-radius:999px;padding:16px 36px;font-size:46px;font-weight:800">+53 % de casos frente al mismo periodo de 2025</div>
+      <div class="abs" style="left:170px;top:680px;width:1580px">
+        <div style="display:flex;align-items:center;gap:28px;height:84px">
+          <div style="width:110px;font-size:40px;font-weight:700;color:var(--muted-d)">2025</div>
+          <div id="bar25" style="height:60px;width:0;background:var(--teal-cont-dark);border-radius:14px"></div>
+          <div id="lab25" style="font-size:40px;font-weight:700;color:var(--muted-d);opacity:0">30 587</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:28px;height:84px;margin-top:18px">
+          <div style="width:110px;font-size:40px;font-weight:700">2026</div>
+          <div id="bar26" style="height:60px;width:0;background:var(--review);border-radius:14px"></div>
+          <div id="lab26" style="font-size:40px;font-weight:800;color:var(--review);opacity:0">46 669</div>
+        </div>
+      </div>
+      <div class="src" id="src">Fuente: CDC-Minsa, hasta la semana epidemiológica 33 de 2026 (22 de agosto). Datos provisionales. Comparación con el mismo periodo de 2025.</div>
+    </div>
+    <div class="card card-d" id="c1" style="left:140px;top:290px;width:800px;height:470px;padding:56px">
+      <div style="font-size:40px;font-weight:800;color:var(--teal-dark);letter-spacing:.02em;text-transform:uppercase">A quién afecta</div>
+      <div style="font-size:56px;font-weight:700;line-height:1.2;margin-top:26px">A las familias de zonas con brotes y a unos servicios de salud que se saturan.</div>
+    </div>
+    <div class="card card-d" id="c2" style="left:980px;top:290px;width:800px;height:470px;padding:56px">
+      <div style="font-size:40px;font-weight:800;color:var(--review);letter-spacing:.02em;text-transform:uppercase">Por qué importa</div>
+      <div style="font-size:56px;font-weight:700;line-height:1.2;margin-top:26px">No hay un tratamiento específico: prevenir es <span style="color:var(--teal-dark)">eliminar el agua acumulada</span>.</div>
+    </div>
+  </section>
+
+  <!-- 4. logo -->
+  <section class="scene light" id="s4" style="clip-path:circle(0px at 960px 540px)">
+    <svg id="s4svg" viewBox="0 0 1920 1080"></svg>
+    <div class="t" id="s4a" style="top:600px;font-size:170px;color:var(--ink-l)">Detengue</div>
+    <div class="t" id="s4b" style="top:820px;font-size:60px;font-weight:600;color:var(--muted-l);letter-spacing:-0.01em">10 minutos contra el dengue, <span style="color:var(--teal);font-weight:800">asistidos por IA</span>.</div>
+  </section>
+
+  <!-- 5. cómo funciona -->
+  <section class="scene light" id="s5">
+    <svg id="s5svg" viewBox="0 0 1920 1080"></svg>
+    <div class="card card-l" id="k1" style="left:790px;top:190px;width:1060px;height:200px;padding:34px 44px;display:flex;align-items:center;gap:36px">
+      <div style="flex:none;width:92px;height:92px;border-radius:50%;background:var(--teal);color:#fff;font-size:52px;font-weight:800;display:flex;align-items:center;justify-content:center">1</div>
+      <div style="font-size:46px;font-weight:700;line-height:1.18">Apuntas la cámara.</div>
+    </div>
+    <div class="card card-l" id="k2" style="left:790px;top:430px;width:1060px;height:230px;padding:34px 44px;display:flex;align-items:center;gap:36px">
+      <div style="flex:none;width:92px;height:92px;border-radius:50%;background:var(--teal);color:#fff;font-size:52px;font-weight:800;display:flex;align-items:center;justify-content:center">2</div>
+      <div style="font-size:46px;font-weight:700;line-height:1.18">La IA reconoce el recipiente y su estado, <span style="color:var(--teal)">en tu teléfono</span>.</div>
+    </div>
+    <div class="card card-l" id="k3" style="left:790px;top:700px;width:1060px;height:260px;padding:34px 44px;display:flex;align-items:center;gap:36px">
+      <div style="flex:none;width:92px;height:92px;border-radius:50%;background:var(--teal);color:#fff;font-size:52px;font-weight:800;display:flex;align-items:center;justify-content:center">3</div>
+      <div style="font-size:46px;font-weight:700;line-height:1.18">Reglas claras te dicen qué hacer.<br><span style="color:var(--teal)">Lo dudoso, lo confirmas tú.</span></div>
+    </div>
+  </section>
+
+  <!-- 6. por qué IA -->
+  <section class="scene light" id="s6">
+    <div class="t" id="s6h" style="top:120px;font-size:84px;color:var(--ink-l)">La IA lo hace <span style="color:var(--teal)">posible</span></div>
+    <svg id="s6svg" viewBox="0 0 1920 1080"></svg>
+  </section>
+
+  <!-- 7. cierre -->
+  <section class="scene" id="s7" style="background:var(--teal);color:#fff">
+    <svg id="s7svg" viewBox="0 0 1920 1080"></svg>
+    <div class="abs" id="s7w" style="left:0;right:0;top:470px;text-align:center;font-size:150px;font-weight:800;letter-spacing:-0.03em;white-space:nowrap">
+      <span id="w1" style="opacity:0;display:inline-block">Revisa.</span>
+      <span id="w2" style="opacity:0;display:inline-block;margin:0 24px">Vacía.</span>
+      <span id="w3" style="opacity:0;display:inline-block">Repite.</span>
+    </div>
+    <div class="t" id="s7a" style="top:700px;font-size:72px;font-weight:700">Detengue</div>
+    <div class="t" id="s7b" style="top:960px;font-size:30px;font-weight:500;color:rgba(255,255,255,.85)">Detengue no diagnostica dengue ni reemplaza una inspección sanitaria.</div>
+  </section>
+
+</div>
+
+<script>
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const eo=t=>1-Math.pow(1-clamp(t),3);
+const eio=t=>{t=clamp(t);return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2};
+const back=t=>{t=clamp(t);const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2)};
+const $=id=>document.getElementById(id);
+const fmt=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+
+// ---------- piezas SVG ----------
+function bucket(uid,level,o={}){
+  const body=o.body||'#26332F', stroke=o.stroke||'#5EEAD4', water=o.water||'#0B6B63', surf=o.surf||'#5EEAD4';
+  const hw=y=>180-45*(y/320);
+  const sy=345-level*300;
+  const rx=hw(sy)-8;
+  let w='';
+  if(level>0.01){
+    w=`<g clip-path="url(#cp${uid})"><rect x="-200" y="${sy}" width="400" height="400" fill="${water}"/></g>
+       <ellipse cx="0" cy="${sy}" rx="${rx}" ry="${rx*0.16}" fill="${surf}" opacity=".55"/>`;
+  }
+  return `<defs><clipPath id="cp${uid}"><path d="M-180 0 L-135 320 Q-132 345 -105 345 L105 345 Q132 345 135 320 L180 0 Z"/></clipPath></defs>
+    <path d="M-170 14 Q0 -190 170 14" fill="none" stroke="${stroke}" stroke-width="9" stroke-linecap="round"/>
+    <path d="M-180 0 L-135 320 Q-132 345 -105 345 L105 345 Q132 345 135 320 L180 0 Z" fill="${body}"/>
+    ${w}
+    <path d="M-180 0 L-135 320 Q-132 345 -105 345 L105 345 Q132 345 135 320 L180 0" fill="none" stroke="${stroke}" stroke-width="6" stroke-linejoin="round"/>
+    <ellipse cx="0" cy="0" rx="180" ry="28" fill="none" stroke="${stroke}" stroke-width="6"/>`;
+}
+function tub(o={}){
+  const stroke=o.stroke||'#5EEAD4';
+  return `<path d="M-200 0 L-155 115 Q-152 132 -132 132 L132 132 Q152 132 155 115 L200 0 Z" fill="#26332F"/>
+    <path d="M-175 40 L175 40 L158 100 Q155 118 135 118 L-135 118 Q-155 118 -158 100 Z" fill="#0B6B63"/>
+    <ellipse cx="0" cy="40" rx="176" ry="20" fill="#5EEAD4" opacity=".5"/>
+    <path d="M-200 0 L-155 115 Q-152 132 -132 132 L132 132 Q152 132 155 115 L200 0" fill="none" stroke="${stroke}" stroke-width="6" stroke-linejoin="round"/>
+    <ellipse cx="0" cy="0" rx="200" ry="24" fill="none" stroke="${stroke}" stroke-width="6"/>`;
+}
+function tank(o={}){
+  const stroke=o.stroke||'#5EEAD4';
+  return `<rect x="-105" y="0" width="210" height="270" rx="26" fill="#26332F" stroke="${stroke}" stroke-width="6"/>
+    <line x1="-105" y1="90" x2="105" y2="90" stroke="${stroke}" stroke-width="4" opacity=".5"/>
+    <line x1="-105" y1="180" x2="105" y2="180" stroke="${stroke}" stroke-width="4" opacity=".5"/>
+    <ellipse cx="0" cy="0" rx="105" ry="26" fill="#16201E" stroke="${stroke}" stroke-width="6"/>
+    <circle cx="0" cy="-2" r="26" fill="none" stroke="${stroke}" stroke-width="5"/>`;
+}
+function pot(o={}){
+  const stroke=o.stroke||'#5EEAD4';
+  return `<path d="M0 -10 Q-40 -90 -95 -95 Q-70 -30 0 -10 Z" fill="#2E7D32" opacity=".9"/>
+    <path d="M0 -10 Q40 -110 100 -105 Q80 -30 0 -10 Z" fill="#2E7D32"/>
+    <path d="M-100 0 L-75 150 Q-72 165 -55 165 L55 165 Q72 165 75 150 L100 0 Z" fill="#26332F" stroke="${stroke}" stroke-width="6" stroke-linejoin="round"/>
+    <ellipse cx="0" cy="0" rx="100" ry="16" fill="#3a2d22" stroke="${stroke}" stroke-width="6"/>
+    <path d="M-135 178 Q-135 205 -105 205 L105 205 Q135 205 135 178 Z" fill="#0B6B63" stroke="${stroke}" stroke-width="5"/>
+    <ellipse cx="0" cy="178" rx="135" ry="12" fill="#5EEAD4" opacity=".55"/>`;
+}
+function logo(cx,cy,r,bg,fg,check){
+  const s=r/50;
+  return `<g transform="translate(${cx},${cy}) scale(${s}) translate(-54,-54)">
+    <circle cx="54" cy="54" r="50" fill="${bg}"/>
+    <path d="M54,28 C54,28 38,46 38,58 C38,66.8 45.2,74 54,74 C62.8,74 70,66.8 70,58 C70,46 54,28 54,28 Z" fill="${fg}"/>
+    <path d="M47,58 L52.5,63.5 L61,53" fill="none" stroke="${check}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>`;
+}
+
+// ---------- escena 1 ----------
+function s1(t){
+  const dropT=seg(t,0.7,1.9), dropY=-40+ (540+0-(-40))*0 ; // placeholder
+  const y=lerpY(dropT);
+  let g='';
+  g+=`<g transform="translate(960,430)">${bucket('a',0.55)}</g>`;
+  if(t<1.9){
+    const o=eo(seg(t,0.5,0.8));
+    g+=`<g transform="translate(960,${y})" opacity="${o}"><path d="M0 -34 C0 -34 -20 -6 -20 8 C-20 20 -11 28 0 28 C11 28 20 20 20 8 C20 -6 0 -34 0 -34 Z" fill="#5EEAD4"/></g>`;
+  }
+  const sy=430+345-0.55*300; // y superficie
+  for(let i=0;i<3;i++){
+    const p=seg(t,1.9+i*0.45,4.4+i*0.45);
+    if(p>0&&p<1){
+      const rx=30+eo(p)*150, ry=rx*0.16;
+      g+=`<ellipse cx="960" cy="${sy}" rx="${rx}" ry="${ry}" fill="none" stroke="#CCFBF1" stroke-width="4" opacity="${(1-p)*0.9}"/>`;
+    }
+  }
+  $('s1svg').innerHTML=g;
+  const a=eo(seg(t,2.3,2.9)), b=eo(seg(t,3.6,4.2));
+  $('s1a').style.opacity=a*(1-b); $('s1a').style.transform=`translateY(${(1-a)*20}px)`;
+  $('s1b').style.opacity=b; $('s1b').style.transform=`translateY(${(1-b)*20}px)`;
+}
+function lerpY(p){ return -40+ (p*p)*(430+345-0.55*300+40);} // cae acelerando hasta la superficie
+
+// ---------- escena 2 ----------
+function s2(t){
+  const a=eo(seg(t,5.6,6.3)), b=eo(seg(t,7.4,8.1));
+  $('s2a').style.opacity=a; $('s2a').style.transform=`translateY(${(1-a)*18}px)`;
+  $('s2b').style.opacity=b; $('s2b').style.transform=`translateY(${(1-b)*18}px)`;
+  const BASE=800;
+  const items=[
+    {x:380, sc:.80,h:345,up:95, draw:()=>bucket('b',0.55),lab:'Balde',t0:8.3},
+    {x:780, sc:.85,h:132,up:24, draw:()=>tub(),lab:'Tina',t0:8.6},
+    {x:1150,sc:.85,h:270,up:28, draw:()=>tank(),lab:'Tanque',t0:8.9},
+    {x:1540,sc:.85,h:205,up:105,draw:()=>pot(),lab:'Maceta',t0:9.2},
+  ];
+  let g='';
+  items.forEach((it,i)=>{
+    const p=back(seg(t,it.t0,it.t0+0.6));
+    if(p<=0)return;
+    const oy=BASE-it.h*it.sc;
+    const s=it.sc*p;
+    g+=`<g transform="translate(${it.x},${BASE-it.h*it.sc*p}) scale(${s})" opacity="${clamp(p)}">${it.draw()}</g>`;
+    const lp=eo(seg(t,it.t0+0.3,it.t0+0.8));
+    g+=`<text x="${it.x}" y="${BASE+84}" text-anchor="middle" font-size="40" font-weight="700" fill="#BFCDCA" opacity="${lp}" font-family="Inter">${it.lab}</text>`;
+    const m=eo(seg(t,10.0+i*0.35,10.5+i*0.35));
+    if(m>0){
+      const pulse=(Math.sin((t-10)*4+i)+1)/2;
+      const my=oy-it.up*it.sc-80;
+      g+=`<g opacity="${m}"><circle cx="${it.x}" cy="${my}" r="${34+pulse*22}" fill="#C62828" opacity="${0.28*(1-pulse)+0.1}"/>
+        <circle cx="${it.x}" cy="${my}" r="20" fill="#C62828"/>
+        <path d="M${it.x} ${my-9} L${it.x} ${my+3}" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="${it.x}" cy="${my+11}" r="3" fill="#fff"/></g>`;
+    }
+  });
+  $('s2svg').innerHTML=g;
+}
+
+// ---------- escena 3 ----------
+function s3(t){
+  const sv=eo(seg(t,12.2,12.8))*(1-eo(seg(t,19.0,19.6)));
+  $('s3stats').style.opacity=sv;
+  $('n1').textContent=fmt(46669*eo(seg(t,12.8,16.2)));
+  $('n2').textContent=fmt(57*eo(seg(t,13.2,15.6)));
+  const p=eo(seg(t,16.6,17.3));
+  $('pill').style.opacity=p; $('pill').style.transform=`translateY(${(1-p)*20}px)`;
+  const w26=1000, w25=w26*30587/46669;
+  const b25=eo(seg(t,17.2,18.2)), b26=eo(seg(t,17.6,18.6));
+  $('bar25').style.width=(w25*b25)+'px'; $('bar26').style.width=(w26*b26)+'px';
+  $('lab25').style.opacity=eo(seg(t,18.0,18.5)); $('lab26').style.opacity=eo(seg(t,18.4,18.9));
+  $('src').style.opacity=eo(seg(t,13.2,13.8));
+  const c1=eo(seg(t,19.8,20.5)), c2=eo(seg(t,21.8,22.5));
+  $('c1').style.opacity=c1; $('c1').style.transform=`translateY(${(1-c1)*28}px)`;
+  $('c2').style.opacity=c2; $('c2').style.transform=`translateY(${(1-c2)*28}px)`;
+}
+
+// ---------- escena 4 ----------
+function s4(t){
+  const r=eio(seg(t,25.0,26.4))*1500;
+  $('s4').style.clipPath=`circle(${r}px at 960px 540px)`;
+  const p=back(seg(t,26.3,27.1));
+  $('s4svg').innerHTML=`<g opacity="${clamp(p)}" transform="translate(0,${-40})">${logo(960,330,150*Math.max(p,0.001),'#0F766E','#fff','#0F766E')}</g>`;
+  const a=eo(seg(t,27.0,27.7)), b=eo(seg(t,28.1,28.8));
+  $('s4a').style.opacity=a; $('s4a').style.transform=`translateY(${(1-a)*24}px)`;
+  $('s4b').style.opacity=b; $('s4b').style.transform=`translateY(${(1-b)*24}px)`;
+}
+
+// ---------- escena 5 ----------
+function s5(t){
+  const lvl = 0.62*(1-eio(seg(t,35.3,36.4)));          // el balde se vacía
+  const boxT = eo(seg(t,31.3,32.1));
+  const risk = t<35.5;
+  const col = risk ? '#C62828' : '#2E7D32';
+  const phoneX=250, phoneY=120, pw=440, ph=840;
+  let g='';
+  g+=`<g opacity="${eo(seg(t,30.0,30.6))}">
+    <rect x="${phoneX}" y="${phoneY}" width="${pw}" height="${ph}" rx="56" fill="#10201E"/>
+    <clipPath id="scr"><rect x="${phoneX+16}" y="${phoneY+16}" width="${pw-32}" height="${ph-32}" rx="42"/></clipPath>
+    <g clip-path="url(#scr)">
+      <rect x="${phoneX}" y="${phoneY}" width="${pw}" height="${ph}" fill="#C9D6D2"/>
+      <rect x="${phoneX}" y="${phoneY+470}" width="${pw}" height="${ph-470}" fill="#AEBDB8"/>
+      <g transform="translate(${phoneX+pw/2},${phoneY+300}) scale(.78)">${bucket('c',lvl,{body:'#E6EFEC',stroke:'#4B6B66',water:'#2F8F86',surf:'#CCFBF1'})}</g>
+      <rect x="${phoneX+60}" y="${phoneY+205}" width="${320*boxT}" height="${372*boxT}" rx="14" fill="none" stroke="${col}" stroke-width="7"/>
+      <g opacity="${boxT}"><rect x="${phoneX+60}" y="${phoneY+159}" width="${risk?228:204}" height="46" rx="12" fill="${col}"/>
+      <text x="${phoneX+78}" y="${phoneY+191}" font-size="26" font-weight="700" fill="#fff" font-family="Inter">${risk?'Balde con agua':'Balde vacío'}</text></g>
+      <g opacity="${eo(seg(t,32.5,33.1))}" transform="translate(0,${(1-eo(seg(t,32.5,33.1)))*40})">
+        <rect x="${phoneX+16}" y="${phoneY+ph-250}" width="${pw-32}" height="234" fill="#F7FAF9"/>
+        <rect x="${phoneX+48}" y="${phoneY+ph-222}" width="${risk?150:160}" height="52" rx="26" fill="${col}"/>
+        <text x="${phoneX+48+(risk?75:80)}" y="${phoneY+ph-186}" font-size="28" font-weight="800" fill="#fff" text-anchor="middle" font-family="Inter">${risk?'RIESGO':'SEGURO'}</text>
+        <text x="${phoneX+48}" y="${phoneY+ph-118}" font-size="34" font-weight="800" fill="#10201E" font-family="Inter">${risk?'Vacíalo y voltéalo':'Bien hecho'}</text>
+        <text x="${phoneX+48}" y="${phoneY+ph-70}" font-size="26" fill="#3F4F4C" font-family="Inter">${risk?'Evita que se acumule agua.':'Sin agua acumulada.'}</text>
+      </g>
+    </g>
+    <rect x="${phoneX+pw/2-60}" y="${phoneY+22}" width="120" height="14" rx="7" fill="#10201E"/>
+  </g>`;
+  $('s5svg').innerHTML=g;
+  const ks=[['k1',30.6,30.6,32.3],['k2',31.9,32.3,34.4],['k3',33.4,34.4,38.6]];
+  ks.forEach(([id,t0,a0,a1])=>{
+    const p=eo(seg(t,t0,t0+0.6));
+    const el=$(id); el.style.opacity=p; el.style.transform=`translateX(${(1-p)*60}px)`;
+    const act=t>=a0&&t<a1;
+    el.style.borderColor=act?'#0F766E':'#E2ECEA';
+    el.style.background=act?'#CCFBF1':'#fff';
+  });
+}
+
+// ---------- escena 6 ----------
+function icon(kind,cx,cy){
+  const c='#fff', s=`stroke="${c}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
+  const base=`<circle cx="${cx}" cy="${cy}" r="76" fill="#0F766E"/>`;
+  let ic='';
+  if(kind==='ok') ic=`<circle cx="${cx}" cy="${cy}" r="38" ${s}/><path d="M${cx-18} ${cy+2} L${cx-4} ${cy+16} L${cx+20} ${cy-14}" ${s}/>`;
+  if(kind==='chip') ic=`<rect x="${cx-30}" y="${cy-30}" width="60" height="60" rx="10" ${s}/><path d="M${cx-14} ${cy-46} v16 M${cx+14} ${cy-46} v16 M${cx-14} ${cy+30} v16 M${cx+14} ${cy+30} v16 M${cx-46} ${cy-14} h16 M${cx-46} ${cy+14} h16 M${cx+30} ${cy-14} h16 M${cx+30} ${cy+14} h16" ${s}/>`;
+  if(kind==='wifi') ic=`<path d="M${cx-44} ${cy-10} Q${cx} ${cy-50} ${cx+44} ${cy-10} M${cx-26} ${cy+10} Q${cx} ${cy-12} ${cx+26} ${cy+10}" ${s}/><circle cx="${cx}" cy="${cy+30}" r="5" fill="${c}"/><path d="M${cx-48} ${cy-44} L${cx+48} ${cy+48}" ${s}/>`;
+  if(kind==='lock') ic=`<rect x="${cx-34}" y="${cy-8}" width="68" height="52" rx="10" ${s}/><path d="M${cx-20} ${cy-8} v-16 a20 20 0 0 1 40 0 v16" ${s}/>`;
+  return base+ic;
+}
+function s6(t){
+  const h=eo(seg(t,38.3,38.9));
+  $('s6h').style.opacity=h; $('s6h').style.transform=`translateY(${(1-h)*18}px)`;
+  const cards=[
+    ['ok','Efectiva','Te dice qué buscar y qué hacer, sin capacitación.',38.8],
+    ['chip','Viable','Un modelo de 3 MB que corre en teléfonos económicos.',39.3],
+    ['wifi','Accesible','Funciona sin internet.',39.8],
+    ['lock','Privada','Tus fotos nunca salen del teléfono.',40.3],
+  ];
+  let g='';
+  cards.forEach(([k,title,body,t0],i)=>{
+    const p=eo(seg(t,t0,t0+0.6));
+    const x=140+i*410, y=330+(1-p)*40;
+    g+=`<g opacity="${p}"><rect x="${x}" y="${y}" width="380" height="560" rx="32" fill="#fff" stroke="#E2ECEA" stroke-width="2"/>${icon(k,x+190,y+130)}`;
+    g+=`<text x="${x+190}" y="${y+290}" text-anchor="middle" font-size="52" font-weight="800" fill="#10201E" font-family="Inter">${title}</text>`;
+    // texto en líneas
+    const words=body.split(' ');let lines=[],cur='';
+    words.forEach(w=>{ if((cur+' '+w).trim().length>20){lines.push(cur.trim());cur=w;} else cur+=' '+w;});
+    lines.push(cur.trim());
+    lines.forEach((l,j)=>{ g+=`<text x="${x+190}" y="${y+350+j*44}" text-anchor="middle" font-size="34" fill="#3F4F4C" font-family="Inter">${l}</text>`; });
+    g+='</g>';
+  });
+  $('s6svg').innerHTML=g;
+}
+
+// ---------- escena 7 ----------
+function s7(t){
+  const p=back(seg(t,43.2,44.0));
+  $('s7svg').innerHTML=`<g opacity="${clamp(p)}">${logo(960,270,110*Math.max(p,0.001),'#FFFFFF','#0F766E','#FFFFFF')}</g>`;
+  [['w1',43.8],['w2',44.3],['w3',44.8]].forEach(([id,t0])=>{
+    const q=eo(seg(t,t0,t0+0.5)); const el=$(id); el.style.opacity=q; el.style.transform=`translateY(${(1-q)*26}px)`;
+  });
+  const a=eo(seg(t,45.4,46.0)), b=eo(seg(t,45.7,46.3));
+  $('s7a').style.opacity=a; $('s7b').style.opacity=b;
+}
+
+// ---------- línea de tiempo ----------
+const SCENES=[
+  ['s1',0,5.6,s1],['s2',5.0,12.6,s2],['s3',12.0,26.5,s3],['s4',25.0,30.6,s4],
+  ['s5',30.0,38.6,s5],['s6',38.0,43.6,s6],['s7',43.0,47.01,s7]
+];
+window.DURATION=47;
+window.setTime=function(t){
+  SCENES.forEach(([id,a,b,fn],i)=>{
+    const el=$(id);
+    const on=t>=a&&t<b;
+    el.style.display=on?'block':'none';
+    el.style.zIndex=i;
+    if(on){
+      // fundido de entrada (salvo la 1 y la 4, que usan su propia transición)
+      if(id==='s1'||id==='s4') el.style.opacity=1; else el.style.opacity=eo(seg(t,a,a+0.5));
+      fn(t);
+    }
+  });
+};
+setTime(0);
+</script>
+</body>
+</html>
