@@ -1,0 +1,6 @@
+frames/
+frames_test/
+*.log
+*.wav
+cs_*.png
+contact.png
