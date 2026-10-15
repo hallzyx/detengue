@@ -14,7 +14,7 @@ baldes son muy pequeños y la tasa de falsas alarmas es alta (ver Limitaciones).
 | Clases | `bucket:open`, `bucket:water`, `bucket:inverted`, `water_tank` |
 | Runtime | TensorFlow Lite 2.16.1, CPU + XNNPACK, sin Play Services. Probado a mano en un teléfono (ver Limitaciones) |
 | Verificación del contrato | `ml.verify_tflite`: OK (NHWC, una salida, 4+4 canales, < 15 MB) |
-| Latencia en gama baja | *pendiente* (`ml/benchmark/benchmark_tflite.py` + pantalla de diagnóstico; no medida) |
+| Latencia en teléfono | Xiaomi 2412DPCOAG (Android 15, 8 núcleos), pantalla de diagnóstico, n = 50: inferencia ≈ 120 ms (pre 33 + inf 120 + post 1); p50 94 ms / p95 131 ms; carga del modelo 101 ms; RAM ≈ 216 MB (PSS); red `OFF`. **Gama baja: pendiente** (`ml/benchmark/benchmark_tflite.py`) |
 
 ## Incidente: el INT8 estático recortaba la confianza (versiones 0.2.0–0.4.0)
 
@@ -42,7 +42,7 @@ problema; por eso existe `ml.simulate_app`, que reproduce letterbox, umbrales y 
   tenue, así que pueden ser etiquetas ruidosas. Prompts y hashes en la carpeta de origen; no se versionan aquí.
 - **Copias degradadas de las sintéticas, solo en train** (131, `ml/degrade.py`): desenfoque, ruido, JPEG fuerte, poca luz y contraluz
   aplicados por código, con las mismas cajas. Simulan una cámara de baja calidad.
-- **Imágenes web** (Openverse, CC0/PDM/BY/BY-SA; atribuciones en `ml/external/web/ATTRIBUTION.csv`): 24 fotos de balde.
+- **Imágenes web** (Openverse, CC0/PDM/BY/BY-SA; atribuciones en [`docs/ATTRIBUTION.md`](ATTRIBUTION.md)): 24 fotos de balde.
 - **Silva** (Roboflow Universe, GPL-3.0): solo `water_tank` (vistas de dron y de Brasil).
 
 Clases retiradas desde v0.2: `tire` (poco relevante en una casa) y `bottle` (las 568 cajas de Silva miden 4–15 px, vista de dron).
@@ -102,7 +102,7 @@ Lo que falta son fotos reales de agua poco profunda y de objetos que no son bald
   altas con asa en exteriores reales, de noche o con otros fondos. Gran parte de lo demás es sintético.
 - **`water_tank` viene de vistas de dron (Silva):** un tanque fotografiado de cerca puede comportarse distinto. No se midió.
 - **Prueba en dispositivo:** una persona instaló la APK v0.5.0 en su teléfono (modelo no indicado), el modelo cargó y analizó, y dio veredictos
-  de revisión y de peligro "dentro de lo que cabe". Es una prueba informal: **sin tabla de aciertos, sin latencia ni consumo medidos**.
+  de revisión y de peligro "dentro de lo que cabe". Es una prueba informal: **sin tabla de aciertos**. La latencia se midió después en la pantalla de diagnóstico (ver tabla superior), solo en un teléfono reciente.
 - Licencia: el dataset de Silva es GPL-3.0; revisar su implicación antes de publicar el modelo.
 
 ## Uso previsto y privacidad

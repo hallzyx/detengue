@@ -1,5 +1,7 @@
 # PRD — Detengue
 
+> Documento original de requisitos. El estado real y las desviaciones están en el [README](../README.md) y en [`DECISIONS.md`](DECISIONS.md).
+
 **Versión:** 1.0  
 **Fecha:** 02 de octubre de 2026  
 **Producto:** Detengue  
