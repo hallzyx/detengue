@@ -142,6 +142,16 @@ scripts/   Guardas de CI (sin permiso de red, sin código de red)
 | 6 | Barrido de zona (5 s) y galería de hallazgos | ✅ |
 | 7 | Gamificación: racha, insignias, siguiente meta y celebración | ✅ |
 
+## Cómo se construyó
+
+Detengue se desarrolló **con Claude (Anthropic) como asistente de programación**, en una sesión de trabajo conjunta: la app Android
+(Kotlin/Compose), las guardas de CI, el pipeline de ML, la model card y demás documentación, y el intro animado del video salieron de ese
+trabajo, con los commits co-firmados por Claude. La dirección del producto, las decisiones, el entrenamiento en su propio equipo
+(GPU RTX 3050 en WSL2), las pruebas en el teléfono y la grabación del demo son de **@hallzyx**.
+
+Esto afecta a cómo leer el repo: el código y el modelo no los ha auditado un tercero, y las cajas del dataset las revisó un asistente de IA,
+no un experto sanitario. Por eso las limitaciones están escritas con tanto detalle.
+
 ## Datos, créditos y licencias
 
 - **Fotos propias** de baldes y tinas, **imágenes sintéticas** generadas con IA (solo en entrenamiento) y copias degradadas de estas.
