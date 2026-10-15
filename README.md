@@ -146,7 +146,8 @@ scripts/   Guardas de CI (sin permiso de red, sin código de red)
 
 Detengue se desarrolló **con Claude (Anthropic) como asistente de programación**, en una sesión de trabajo conjunta: la app Android
 (Kotlin/Compose), las guardas de CI, el pipeline de ML, la model card y demás documentación, y el intro animado del video salieron de ese
-trabajo, con los commits co-firmados por Claude. La dirección del producto, las decisiones, el entrenamiento en su propio equipo
+trabajo, con los commits co-firmados por Claude. La gamificación (racha, insignias, galería del barrido) la desarrolló un subagente
+de Claude (Opus 5.5) lanzado desde esa misma sesión, en ramas propias que luego se integraron. La dirección del producto, las decisiones, el entrenamiento en su propio equipo
 (GPU RTX 3050 en WSL2), las pruebas en el teléfono y la grabación del demo son de **@hallzyx**.
 
 Esto afecta a cómo leer el repo: el código y el modelo no los ha auditado un tercero, y las cajas del dataset las revisó un asistente de IA,
